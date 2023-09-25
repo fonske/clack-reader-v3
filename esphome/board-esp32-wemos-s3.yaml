@@ -1,36 +1,31 @@
-### ESP32S3 used is a wemos s3 mini
+### ESP32S3 used is a wemos lolin_s3_mini
 
-esp32:
-  board: lolin_s3
+esphome:
+  platformio_options:
+    platform: https://github.com/platformio/platform-espressif32.git
+    board: lolin_s3_mini
+    framework: arduino
+    board_build.flash_mode: dio
+    platform_packages:
+      - framework-arduinoespressif32 @ https://github.com/espressif/arduino-esp32
+
+esp32:  
+  board: lolin_s3_mini
   variant: esp32s3
   framework:
     type: arduino
-#    version: latest
+    version: latest
 
-uart:
-  id: uart_bus
-  tx_pin: 35  #SDA
-  rx_pin: 36  #SCL
-  baud_rate: 9600
+# the m5stack TOF sensor vl53l0x is I2C
+i2c:  
+  - id: bus_a
+    sda: 35  #21   ##35 of  #2 op lolin s3?
+    scl: 36  #22   ##36 of  #4 op lolin s3?
+    scan: true
 
 #status_led:
 #  pin:
 #    number: 47
-
-# get rid of CDC error
-esphome:
-  platformio_options:
-    board_build.arduino.memory_type: qio_qspi
-    board_upload.flash_size: 4MB
-    board_upload.ram_size: 327680
-    board_upload_maximum_size: 4193404
-    board_upload_speed: 460800
-    build_flags: [
-      "-DBOARD_HAS_PSRAM",
-      "-DARDUINO_LOLIN_S3_MINI",
-      "-DARDUINO_USB_MODE=1"]
-    board_build.extra_flags:
-      - "-DARDUINO_USB_CDC_ON_BOOT=0"  # Override, defaults to '-DARDUINO_USB_CDC_ON_BOOT=1'
 
 # Enable/Disable logging
 logger:

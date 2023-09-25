@@ -1,0 +1,132 @@
+substitutions:
+  name: clack-s3
+  device_description: "Esphome component for Clack WS1 softener with TOF sensor saltlevel detection"
+  timezone: "Europe/Amsterdam"  
+  
+# In order to use other language or a different ESP chip, fix include file name below:
+# Currently supported languages are en, nl. 
+# ESP32 is a mh-et-live or wemos d32 mini, esp8266 is a wemos d1 mini, esp32s3 is a lilygo ESP32S3-T7,
+# ESP32-wemos-s3 is a wemos S3 mini
+
+packages:
+  remote_package:
+    url: https://github.com/fonske/clack-reader-v3
+    ref: main
+    files: 
+      #- esphome/.clack-labels-en.yaml
+      - esphome/.clack-labels-nl.yaml
+      - esphome/board-esp32-wemos-s3.yaml
+      # - esphome/board-esp8266.yaml
+
+esphome:
+  name: ${name}
+
+# Flash S3: press "O" and hold, press "RST", com port changes, esp connects, flash manual in web-esphome after manual download
+esp32:  
+  board: lolin_s3_mini
+  variant: esp32s3
+  framework:
+    type: arduino
+    version: latest
+
+
+# Enable logging
+logger:
+  logs:
+    esp32.preferences: WARN
+    sensor: WARN
+    text_sensor: WARN
+    dht.sensor: WARN
+    switch: WARN
+    button: WARN
+    number: WARN
+    i2c: DEBUG
+
+# Enable Home Assistant API
+api:
+  reboot_timeout: 0s
+
+time:
+  - platform: sntp
+    id: sntp_time
+    timezone: "Europe/Amsterdam"
+    on_time_sync:
+      then:
+        - logger.log: "Synchronized sntp clock"
+
+ota:
+
+wifi:
+  ssid: !secret wifi_ssid
+  password: !secret wifi_password
+  power_save_mode: none
+  fast_connect: True
+
+  # Enable fallback hotspot (captive portal) in case wifi connection fails
+  ap:
+    ssid: "${friendly_name} hotspot"
+    password: "configesp"
+    ap_timeout: 15s
+
+captive_portal:
+
+# Enable Web server.
+web_server:
+  port: 80
+
+globals:
+   - id: full_cm
+     type: float
+     initial_value: '3'
+   - id: empty_cm
+     type: float
+     initial_value: '35'
+
+# Enable Status LED.
+#status_led:
+#  pin:
+#    number: 47
+
+sensor:
+  - platform: vl53l0x
+    id: distance_cm
+    address: 0x29
+    update_interval: 10s
+    long_range: false
+    internal: true
+    filters:
+      - filter_out: nan
+      - lambda: return x*100;
+      - median:
+          window_size: 10
+          send_every: 10
+          send_first_at: 1
+      - delta: 0.3
+      - clamp:
+          min_value: 0.0
+          max_value: 160.0
+          
+  - platform: template
+    unit_of_measurement: cm
+    icon: mdi:arrow-expand-down
+    name: distance
+    id: distance
+    update_interval: 10s
+    lambda: |-
+      return id(distance_cm).state;
+
+  - platform: template
+    name: "percentage"
+    unit_of_measurement: '%'
+    icon: mdi:percent
+    lambda: |-
+      if (id(distance).state < id(full_cm)) {
+        return 100;
+      }
+      
+      if (id(distance).state > id(empty_cm)) {
+        return 0;
+      }
+      
+      return 100 - (id(distance).state - id(full_cm))  / ((id(empty_cm) - id(full_cm)) / 100);
+    update_interval: 10s
