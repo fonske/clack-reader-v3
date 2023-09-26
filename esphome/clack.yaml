@@ -4,9 +4,8 @@ substitutions:
   timezone: "Europe/Amsterdam"  
 
 # In order to use other language or a different ESP chip, fix include file name below:
-# Currently supported languages are en, nl. 
-# ESP32 is a mh-et-live or wemos d32 mini, esp8266 is a wemos d1 mini, esp32s3 is a lilygo ESP32S3-T7,
-# ESP32-wemos-s3 is a wemos S3 mini
+# Currently supported languages are en (english), nl (dutch). 
+# ESP32-wemos-s3 is a wemos lolin S3 mini
 
 packages:
   remote_package:
@@ -76,59 +75,73 @@ globals:
 #SENSORS
 #-----------
 sensor:
+  - platform: ina219
+    address: 0x40
+    shunt_resistance: 0.1 ohm
+    current:
+      name: "Current"
+    power:
+      name: "Power"
+    bus_voltage:
+      name: "Voltage"
+    shunt_voltage:
+      name: "Shunt Voltage"
+    max_voltage: 32.0V
+    max_current: 3.2A
+    update_interval: 10s
+
   - platform: vl53l0x
     id: distance_cm
     address: 0x29
-    update_interval: 10s
+    update_interval: 5s
     long_range: false
-    internal: true
+    internal: false
     filters:
       - filter_out: nan
       - lambda: return x*100;
       - median:
-          window_size: 10
-          send_every: 10
+          window_size: 3
+          send_every: 2
           send_first_at: 1
       - delta: 0.3
       - clamp:
           min_value: 0.0
           max_value: 160.0
+    on_value:
+      then:
+        - sensor.template.publish:
+            id: clack_distance
+            state: !lambda |-
+              return id(distance_cm).state;
 
 # ultrasonic distance sensor.
-  - platform: custom
-    sensors:
-      name: ${clack_distance}
-      id:  clack_distance
-      unit_of_measurement: "cm"
-      accuracy_decimals: 1
-      icon: "mdi:arrow-expand-vertical" 
-      lambda: |-
-        return id(distance_cm).state;
-      filters:
-      - throttle: 5s
-      - filter_out: nan
-      - delta: 0.5
-      on_value:
-        then:
-          - sensor.template.publish:
-              id: clack_procent
-              state: !lambda |-
-                const float max_distance = id(clack_saltlevel_height_max).state; // heigt in cm to lowest level
-                const float min_distance = id(clack_saltlevel_height_min).state; // height in cm to highest level
-                return int((1-((id(clack_distance).state - min_distance)/max_distance))*100);
-          - sensor.template.publish:
-              id: clack_height
-              state: !lambda |-
-                const float max_distance = id(clack_saltlevel_height_max).state;  // height in cm to lowest level
-                return max_distance-id(clack_distance).state;
-          - text_sensor.template.publish:
-              id: clack_fill_salt
-              state: !lambda |-
-                if (id(clack_height).state < id(clack_saltlevel_height_fill).state) {
-                  return {"${clack_yes}"};
-                } else {
-                  return {"${clack_no}"};
-                }
+  - platform: template
+    name: ${clack_distance}
+    id:  clack_distance
+    unit_of_measurement: "cm"
+    accuracy_decimals: 1
+    icon: "mdi:arrow-expand-vertical" 
+    on_value:
+      then:
+        - sensor.template.publish:
+            id: clack_procent
+            state: !lambda |-
+              const float max_distance = id(clack_saltlevel_height_max).state; // heigt in cm to lowest level
+              const float min_distance = id(clack_saltlevel_height_min).state; // height in cm to highest level
+              return int((1-((id(clack_distance).state - min_distance)/max_distance))*100);
+        - sensor.template.publish:
+            id: clack_height
+            state: !lambda |-
+              const float max_distance = id(clack_saltlevel_height_max).state;  // height in cm to lowest level
+              return max_distance-id(clack_distance).state;
+        - text_sensor.template.publish:
+            id: clack_fill_salt
+            state: !lambda |-
+              if (id(clack_height).state < id(clack_saltlevel_height_fill).state) {
+                return {"${clack_yes}"};
+              } else {
+                return {"${clack_no}"};
+              }
     
       
   # ultrasonic distance sensor calculate tank_percentage
@@ -231,6 +244,16 @@ sensor:
     accuracy_decimals: 1
     filters:
       - multiply: 0.000011574
+
+switch:
+## Chlorinator Relay
+  - platform: gpio
+    pin:
+      number: 10
+      inverted: false
+    name: Clorinator
+    id: chlorinator_relay
+    icon: mdi:alarm-bell
 
 # Text sensors with general information.
 text_sensor:
