@@ -96,14 +96,14 @@ sensor:
 
 # ultrasonic distance sensor.
   - platform: custom
-    lambda: |-
-      return id(distance_cm).state;
     sensors:
       name: ${clack_distance}
       id:  clack_distance
       unit_of_measurement: "cm"
       accuracy_decimals: 1
       icon: "mdi:arrow-expand-vertical" 
+      lambda: |-
+        return id(distance_cm).state;
       filters:
       - throttle: 5s
       - filter_out: nan
