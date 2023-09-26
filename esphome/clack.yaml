@@ -82,13 +82,15 @@ sensor:
       name: "Current"
     power:
       name: "Power"
+      filters:
+        - delta: 0.05
     bus_voltage:
       name: "Voltage"
     shunt_voltage:
       name: "Shunt Voltage"
     max_voltage: 32.0V
     max_current: 3.2A
-    update_interval: 10s
+    update_interval: 5s
 
   - platform: vl53l0x
     id: distance_cm
@@ -100,10 +102,10 @@ sensor:
       - filter_out: nan
       - lambda: return x*100;
       - median:
-          window_size: 3
-          send_every: 2
+          window_size: 5
+          send_every: 3
           send_first_at: 1
-      - delta: 0.3
+      - delta: 0.5
       - clamp:
           min_value: 0.0
           max_value: 160.0
