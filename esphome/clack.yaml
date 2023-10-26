@@ -282,7 +282,7 @@ switch:
     pin:
       number: 10
       inverted: false
-    name: Clorinator
+    name: ${clack_chlorinator}
     id: chlorinator_relay
     icon: mdi:alarm-bell
 
