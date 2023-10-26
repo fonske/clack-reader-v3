@@ -13,6 +13,7 @@ substitutions:
   clack_saltlevel_height_fill: Fill salt distance
   clack_capacity_liters: Capacity in liters
   clack_capacity_days: Capacity in days
+  clack_chlorinator_delay: Chlorinator active time
   clack_watermeter_pulse: Watermeter pulse
   clack_regeneration_pulse: Regeneration pulse
   clack_ip: Water softener IP
