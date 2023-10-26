@@ -125,6 +125,11 @@ binary_sensor:
             id: clack_l_left
             state: !lambda |-
               return int(id(clack_capacity_liters).state - id(clack_watermeter).state);
+        - lambda: |-
+            if (id(select_chl_or_dpsw).state == "Chlorinator") {
+              auto call = id(chlorinator_relay).turn_on();
+              call.perform();
+            }
 
 button:
 ## temporary test button for testing water meter pulse
@@ -178,3 +183,8 @@ button:
               return int(id(clack_capacity_liters).state - id(clack_watermeter).state);
         - lambda: |-
             ESP_LOGI("RegTest", "Regeneration button pressed");
+        - lambda: |-
+            if (id(select_chl_or_dpsw).state == "Chlorinator") {
+              auto call = id(chlorinator_relay).turn_on();
+              call.perform();
+            }
