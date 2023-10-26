@@ -136,7 +136,7 @@ binary_sensor:
             then:
               - switch.turn_on: chlorinator_relay
               - delay: 1000ms
-              - switch.turn_of: chlorinator_relay
+              - switch.turn_off: chlorinator_relay
 
 button:
 ## temporary test button for testing water meter pulse
@@ -201,4 +201,4 @@ button:
             then:
               - switch.turn_on: chlorinator_relay
               - delay: 1000ms
-              - switch.turn_of: chlorinator_relay
+              - switch.turn_off: chlorinator_relay
