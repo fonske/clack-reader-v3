@@ -14,10 +14,6 @@ i2c:
     scl: 36  #22   ##36 of  #4 op lolin s3?
     scan: true
 
-#status_led:
-#  pin:
-#    number: 47
-
 # get rid of CDC error
 esphome:
   platformio_options:
@@ -36,13 +32,9 @@ esphome:
 # Enable/Disable logging
 logger:
   logs:
-    modbus_controller.sensor: WARN
-    modbus_controller.output: WARN
-    modbus.number: WARN
     esp32.preferences: WARN
     sensor: WARN
     text_sensor: WARN
-    dht.sensor: WARN
     switch: WARN
     button: WARN
     number: WARN
@@ -50,7 +42,7 @@ logger:
 
 wifi:
   ap:
-    ssid: "${name} hotspot"
+    ssid: "${name}"
     password: "configesp"
 
 captive_portal:
