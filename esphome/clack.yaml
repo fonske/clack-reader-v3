@@ -1,6 +1,6 @@
 substitutions:
   name: clack
-  device_description: "Esphome component for Clack WS1 softener with ultrasonic sensor saltlevel detection"
+  device_description: "Esphome component for Clack WS1 softener with TOF sensor saltlevel detection"
   timezone: "Europe/Amsterdam"  
 
 # In order to use other language or a different ESP chip, fix include file name below:
@@ -12,8 +12,8 @@ packages:
     url: https://github.com/fonske/clack-reader-v3
     ref: main
     files: 
-      - esphome/.clack-labels-en.yaml
-      # - esphome/.clack-labels-nl.yaml
+      #- esphome/.clack-labels-en.yaml
+      - esphome/.clack-labels-nl.yaml
       - esphome/board-esp32-wemos-s3.yaml
 
 esphome:
@@ -49,9 +49,22 @@ wifi:
 
   # Enable fallback hotspot (captive portal) in case wifi connection fails
   ap:
-    ssid: "${name} hotspot"
+    ssid: "${name}"
     password: "configesp"
     ap_timeout: 15s
+
+globals:
+  - id: totalWaterUsage
+    type: float
+    restore_value: yes          
+    initial_value: '00' 
+
+# Define a global variable for the chlorinator delay duration in minutes
+  - id: duration
+    type: int
+    restore_value: yes
+    initial_value: '05'
+
 
 script:
 ###  On reboot or powerloss of the esp, set the time left counter
@@ -65,11 +78,27 @@ script:
             strftime(str, sizeof(str), "%a %d %b %H:%M", localtime(&currTime));
             return  { str };
 
-globals:
-  - id: totalWaterUsage
-    type: float
-    restore_value: yes          
-    initial_value: '00' 
+###  Define a script that turns on the chlorinator relay, waits for the duration, and turns it off
+  - id: chlorinator_start
+    mode: restart
+    then:
+      - switch.turn_on: chlorinator_relay
+      # Use a lambda expression to return the delay in milliseconds
+      - delay: !lambda "return id(duration) * 60 * 1000;"
+      - switch.turn_off: chlorinator_relay
+
+light:
+#G47=RGB WS2812C-2020
+  - platform: esp32_rmt_led_strip
+    name: Led
+    id: led
+    rgb_order: GRB
+    pin: 47
+    num_leds: 4
+    # RMT 0 channels will be occupied by IR
+    rmt_channel: 1
+    chipset: ws2812
+    restore_mode: RESTORE_DEFAULT_ON
 
 #-----------
 #SENSORS
@@ -102,8 +131,8 @@ sensor:
       - filter_out: nan
       - lambda: return x*100;
       - median:
-          window_size: 5
-          send_every: 3
+          window_size: 15
+          send_every: 7
           send_first_at: 1
       - delta: 0.5
       - clamp:
@@ -257,6 +286,16 @@ switch:
     id: chlorinator_relay
     icon: mdi:alarm-bell
 
+select:
+  - id: clack_select_chl_or_dpsw
+    name: ${clack_select_chl_or_dpsw}
+    platform: template
+    options:
+      - "Uit"     
+      - "Chlorinator"
+    initial_option: "Uit"
+    optimistic: true
+
 # Text sensors with general information.
 text_sensor:
   # Expose ESPHome version as sensor.
@@ -278,9 +317,9 @@ text_sensor:
     icon: mdi:basket-fill
     update_interval: never
 
-# imput numbers as boxes for setting the dimensions of the tank and level alarm.
+# imput numbers as sliders for setting the dimensions of the tank and level alarm.
 number:
-    ## Set minimum distance (from bottom sensor / underneath plastic cap)
+    ## Set minimum distance (from bottom sensor / above plastic cap)
   - platform: template
     id: clack_saltlevel_height_min
     name: ${clack_saltlevel_height_min}
@@ -405,3 +444,23 @@ number:
     initial_value: 10
     restore_value: yes
     unit_of_measurement: "days"
+
+  ## Set chlorinator relay off-delay
+  - platform: template
+    id: clack_chlorinator_delay
+    name: ${clack_chlorinator_delay}
+    icon: mdi:toggle-switch-variant
+    optimistic: true
+    mode: slider
+    step: 1
+    entity_category: config
+    min_value: 0
+    max_value: 15
+    initial_value: 5
+    restore_value: yes
+    unit_of_measurement: "min"
+    on_value:
+      then:
+        - globals.set:
+            id: duration
+            value: !lambda 'return int(x);'
