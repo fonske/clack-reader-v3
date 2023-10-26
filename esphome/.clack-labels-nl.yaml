@@ -1,4 +1,5 @@
 substitutions:
+  clack_select_chl_or_dpsw: Functie mode
   clack_distance: Zoutniveau afstand
   clack_procent: Zoutniveau procent
   clack_height: Zoutniveau hoogte

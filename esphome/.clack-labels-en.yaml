@@ -1,4 +1,5 @@
 substitutions:
+  clack_select_chl_or_dpsw: Function mode
   clack_distance: Salt level distance
   clack_procent: Salt level percent
   clack_height: Salt level height

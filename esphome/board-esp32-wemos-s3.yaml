@@ -119,7 +119,7 @@ binary_sensor:
               return int(id(clack_capacity_liters).state - id(clack_watermeter).state);
         - if:
             condition:
-            - lambda: 'return id(select_chl_or_dpsw).state == "Chlorinator";'
+            - lambda: 'return id(clack_select_chl_or_dpsw).state == "Chlorinator";'
             then:
               - script.execute: chlorinator_start
 
@@ -177,6 +177,6 @@ button:
             ESP_LOGI("RegTest", "Regeneration button pressed");
         - if:
             condition:
-            - lambda: 'return id(select_chl_or_dpsw).state == "Chlorinator";'
+            - lambda: 'return id(clack_select_chl_or_dpsw).state == "Chlorinator";'
             then:
               - script.execute: chlorinator_start
