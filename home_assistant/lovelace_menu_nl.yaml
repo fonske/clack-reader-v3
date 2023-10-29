@@ -136,8 +136,9 @@ views:
           - entity: sensor.salt_level
           - entity: button.test_button_use_pulse
           - entity: button.test_button_regen_pulse
-          - entity: switch.fancoil
-            name: Power
+          - entity: sensor.power
+          - entity: sensor.voltage
+          - entity: sensor.current
       - elements:
           - entity: sensor.salt_level
             image: local/images/softener.png
@@ -218,6 +219,8 @@ views:
               duration: 23h59m59s
       - type: entities
         entities:
+          - entity: select.functie_mode
+          - entity: number.chlorinator_aktief_tijd
           - entity: number.min_afstand_zout
           - entity: number.max_afstand_zout
           - entity: number.zout_bijvullen_afstand
@@ -227,4 +230,5 @@ views:
           - entity: sensor.waterontharder_ip
           - entity: sensor.wifi_signal
           - entity: sensor.wifi_signal_db
+          - entity: light.led
         title: Instellingen
