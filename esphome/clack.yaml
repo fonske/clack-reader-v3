@@ -291,9 +291,9 @@ select:
     name: ${clack_select_chl_or_dpsw}
     platform: template
     options:
-      - "Uit"     
-      - "Chlorinator"
-    initial_option: "Uit"
+      - ${clack_chlorinator_off}     
+      - ${clack_chlorinator}
+    initial_option: ${clack_chlorinator_off}
     optimistic: true
 
 # Text sensors with general information.
