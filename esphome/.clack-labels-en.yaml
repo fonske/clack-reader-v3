@@ -26,6 +26,8 @@ substitutions:
   days: days
   clack_yes: "yes"
   clack_no: "no"
+  clack_on: "On"
+  clack_off: "Off"
 
 text_sensor:
   # Expose last regeneration information as sensor / already in English

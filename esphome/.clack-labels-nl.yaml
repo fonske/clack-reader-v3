@@ -26,6 +26,8 @@ substitutions:
   days: dagen
   clack_yes: ja
   clack_no: nee
+  clack_on: Aan
+  clack_off: Uit
 
 text_sensor:
   # Expose last regeneration information as sensor
