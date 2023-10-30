@@ -22,6 +22,7 @@ substitutions:
   clack_wifi_signal_db_percent: WiFi Signal
   clack_uptime: Uptime
   clack_chlorinator: Chlorinator
+  clack_chlorinator_off: "Off"
   hours: hours
   days: days
   clack_yes: "yes"
