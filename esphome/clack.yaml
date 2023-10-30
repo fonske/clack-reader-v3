@@ -12,8 +12,8 @@ packages:
     url: https://github.com/fonske/clack-reader-v3
     ref: main
     files: 
-      #- esphome/.clack-labels-en.yaml
-      - esphome/.clack-labels-nl.yaml
+      - esphome/.clack-labels-en.yaml
+      #- esphome/.clack-labels-nl.yaml
       - esphome/board-esp32-wemos-s3.yaml
 
 esphome:
