@@ -18,7 +18,7 @@ Connecting the module:
 The power brick/adapter from the clack module will go in the middle in the `power IN`
 A new small cable (provided to you) will go from `power OUT` to the clack head. (This should now power up again)
 
-Connect the cable with the 3 loose strands to the connector on the right side with the names RLY1, COM and RLY2.
+Connect the cable with the 3 loose strands to the connector on the right side with the names `RLY1`, `COM` and `RLY2`.
 
 From here you have to make a choice: (it is one or the other)
 
@@ -33,15 +33,17 @@ This will enable you to measure the power used by the chlorinator, but also to t
 For this you need to take the cable that is connected to the PCB of the chlorinator and connect it to the chlorinator port of your V3. The chlorinator will now remain off
 In order to turn it on you need to programm the V3 (the relais is NC or Normally Closed)
 
+```
 NOTE: 
 In normal conditions this cell needs to be replaced once in a while: BE: 2 years max, NL: 3/4 years max.
 With this choice hopefully it will last longer.
-
+```
 
 ToDo: Add wire diagram
 
 
 ## Contact
 Purchase: alphonsuijtdehaag at gmail dot com, if you are interested in a PCB with wemos s3 mini
+
 Help: Please open a issue on this git project.
 
