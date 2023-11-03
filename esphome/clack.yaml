@@ -1,7 +1,13 @@
 substitutions:
+  # General substitutions"
   name: clack
   device_description: "Esphome component for Clack WS1 softener with TOF sensor saltlevel detection"
   timezone: "Europe/Amsterdam"  
+  # Interval substitutions:
+  salt_level_update_interval: 30s
+  watermeter_update_interval: 600s # 10 minutes
+  tank_percentage_update_interval: 600s
+  clack_height_update_interval: 600s
 
 # In order to use other language or a different ESP chip, fix include file name below:
 # Currently supported languages are en (english), nl (dutch). 
@@ -11,10 +17,8 @@ packages:
   remote_package:
     url: https://github.com/fonske/clack-reader-v3
     ref: main
-    files: 
-      #- esphome/.clack-labels-en.yaml
-      - esphome/.clack-labels-nl.yaml
-      - esphome/board-esp32-wemos-s3.yaml
+    files: [ esphome/.clack-labels-en.yaml, esphome/board-esp32-wemos-s3.yaml ]
+
 
 esphome:
   name: ${name}
@@ -104,6 +108,35 @@ light:
 #SENSORS
 #-----------
 sensor:
+  ## 
+  # Diagnostics wifi and uptime      
+  - platform: wifi_signal # Reports the WiFi signal strength/RSSI in dB
+    id: clack_wifi_signal_db
+    name: "WiFi Signal dB"
+    update_interval: 60s
+    entity_category: diagnostic
+
+  - platform: copy # Reports the WiFi signal strength in %
+    source_id: clack_wifi_signal_db
+    id: clack_wifi_signal_db_percent
+    name: "WiFi Signal"
+    filters:
+      - lambda: return min(max(2 * (x + 100.0), 0.0), 100.0);
+    unit_of_measurement: "%"
+    entity_category: diagnostic
+
+  - platform: uptime
+    id: clack_uptime
+    name: ${clack_uptime}
+    unit_of_measurement: ${days}
+    update_interval: 3600s
+    accuracy_decimals: 1
+    filters:
+      - multiply: 0.000011574
+
+
+  ##
+  # Power meter 
   - platform: ina219
     address: 0x40
     shunt_resistance: 0.1 ohm
@@ -124,7 +157,7 @@ sensor:
   - platform: vl53l0x
     id: distance_cm
     address: 0x29
-    update_interval: 5s
+    update_interval: ${salt_level_update_interval}
     long_range: false
     internal: false
     filters:
@@ -145,7 +178,8 @@ sensor:
             state: !lambda |-
               return id(distance_cm).state;
 
-# ultrasonic distance sensor.
+  ##
+  # ultrasonic distance sensor.
   - platform: template
     name: ${clack_distance}
     id:  clack_distance
@@ -174,7 +208,7 @@ sensor:
                 return {"${clack_no}"};
               }
     
-      
+  ##    
   # ultrasonic distance sensor calculate tank_percentage
   - platform: template
     id: clack_procent
@@ -182,13 +216,13 @@ sensor:
     unit_of_measurement: "%"
     accuracy_decimals: 0
     icon: "mdi:percent-box-outline" 
-    update_interval: 600s
+    update_interval: ${tank_percentage_update_interval} 
     filters:
     - lambda: |-
         if (x >= 100) return 100.0;
         else if (x <= 0.0) return 0.0;
         else return x;
-
+  ##
   # Saltlevel animation picture on dashboard  
   - platform: copy
     source_id: clack_procent
@@ -205,7 +239,7 @@ sensor:
         else if (x <= 4) return 0;
         else return x;
 
-          
+  ##      
   # ultrasonic distance sensor calculate salt level from bottom
   - platform: template
     id: clack_height
@@ -213,25 +247,24 @@ sensor:
     unit_of_measurement: "cm"
     accuracy_decimals: 1
     icon: "mdi:hydraulic-oil-level" 
-    update_interval: 600s
+    update_interval: ${clack_height_update_interval}
     filters:
     - lambda: |-
         if (x >= 100) return 100.0;
         else if (x <= 0.0) return 0.0;
         else return x;
 
-
-#####################################################################
+#------
 # CLACK
-#####################################################################
-
-#  Watermeter  
+#------
+  ##
+  #  Watermeter  
   - platform: template
     id: clack_watermeter
     name: ${clack_watermeter_total}
     state_class: "total_increasing"
     icon: mdi:water
-    update_interval: 600s
+    update_interval: ${watermeter_update_interval}
     unit_of_measurement: "l"
     accuracy_decimals: 0
     lambda: |-
@@ -242,42 +275,18 @@ sensor:
     name: ${clack_m3_left}
     unit_of_measurement: 'm3'
     accuracy_decimals: 2
-    update_interval: 600s
+    update_interval: ${watermeter_update_interval}
 
   - platform: template
     id: clack_l_left
     name: ${clack_l_left}
     unit_of_measurement: 'l'
     accuracy_decimals: 0
-    update_interval: 600s
-
-# Diagnostics wifi and uptime      
-  - platform: wifi_signal # Reports the WiFi signal strength/RSSI in dB
-    id: clack_wifi_signal_db
-    name: "WiFi Signal dB"
-    update_interval: 60s
-    entity_category: diagnostic
-
-  - platform: copy # Reports the WiFi signal strength in %
-    source_id: clack_wifi_signal_db
-    id: clack_wifi_signal_db_percent
-    name: "WiFi Signal"
-    filters:
-      - lambda: return min(max(2 * (x + 100.0), 0.0), 100.0);
-    unit_of_measurement: "%"
-    entity_category: diagnostic
-
-  - platform: uptime
-    id: clack_uptime
-    name: ${clack_uptime}
-    unit_of_measurement: ${days}
-    update_interval: 3600s
-    accuracy_decimals: 1
-    filters:
-      - multiply: 0.000011574
+    update_interval: ${watermeter_update_interval}
 
 switch:
-## Chlorinator Relay
+  ##
+  # Chlorinator Relay
   - platform: gpio
     pin:
       number: 10
@@ -296,20 +305,24 @@ select:
     initial_option: ${clack_off}
     optimistic: true
 
+##
 # Text sensors with general information.
 text_sensor:
+  ##
   # Expose ESPHome version as sensor.
   - platform: version
     id: clack_version
     name: ${clack_version}
     hide_timestamp: true
 
+  ##
   # Expose WiFi information as sensors.
   - platform: wifi_info
     ip_address:
       name: ${clack_ip}
       icon: mdi:ip-network
 
+  ##
   # Textsensor "Fill Salt" yes or no.
   - platform: template
     name: ${clack_fill_salt}
@@ -317,9 +330,11 @@ text_sensor:
     icon: mdi:basket-fill
     update_interval: never
 
+##      
 # imput numbers as sliders for setting the dimensions of the tank and level alarm.
 number:
-    ## Set minimum distance (from bottom sensor / above plastic cap)
+  ##
+  # Set minimum distance (from bottom sensor / above plastic cap)
   - platform: template
     id: clack_saltlevel_height_min
     name: ${clack_saltlevel_height_min}
@@ -347,7 +362,8 @@ number:
               const float max_distance = id(clack_saltlevel_height_max).state;  // height in cm to lowest level
               return max_distance-id(clack_distance).state; 
 
-    ## Set maximum distance (from bottom sensor / underneath plastic cap) to water level (to measure in pipe?)
+  ##            
+  # Set maximum distance (from bottom sensor / underneath plastic cap) to water level (to measure in pipe?)
   - platform: template
     id: clack_saltlevel_height_max
     name: ${clack_saltlevel_height_max}
@@ -374,8 +390,8 @@ number:
             state: !lambda |-
               const float max_distance = id(clack_saltlevel_height_max).state;  // height in cm to lowest level
               return max_distance-id(clack_distance).state;
-
-    ## Set alarm level
+  ##
+  # Set alarm level
   - platform: template
     id: clack_saltlevel_height_fill
     name: ${clack_saltlevel_height_fill}
@@ -400,8 +416,8 @@ number:
               } else {
                 return {"${clack_no}"};
               }
-
-    ## Set capacity liters
+  ##
+  # Set capacity liters
   - platform: template
     id: clack_capacity_liters
     name: ${clack_capacity_liters}
@@ -429,8 +445,8 @@ number:
             id: clack_l_left
             state: !lambda |-
               return int(id(clack_capacity_liters).state - id(clack_watermeter).state);
-  
-    ## Set capacity days  
+  ##  
+  # Set capacity days  
   - platform: template
     id: clack_capacity_days
     name: ${clack_capacity_days}
@@ -444,8 +460,8 @@ number:
     initial_value: 10
     restore_value: yes
     unit_of_measurement: "days"
-
-  ## Set chlorinator relay off-delay
+  ##
+  # Set chlorinator relay off-delay
   - platform: template
     id: clack_chlorinator_delay
     name: ${clack_chlorinator_delay}
