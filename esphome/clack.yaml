@@ -5,10 +5,9 @@ substitutions:
   timezone: "Europe/Amsterdam"  
   # Interval substitutions:
   salt_level_update_interval: 30s
-  watermeter_update_interval: 600s # 10 minnutes
+  watermeter_update_interval: 600s # 10 minutes
   tank_percentage_update_interval: 600s
   clack_height_update_interval: 600s
-  watermeter_update_interval: 600s
 
 # In order to use other language or a different ESP chip, fix include file name below:
 # Currently supported languages are en (english), nl (dutch). 
