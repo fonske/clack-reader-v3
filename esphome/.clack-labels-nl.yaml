@@ -2,6 +2,7 @@ substitutions:
   clack_select_chl_or_dpsw: Functie mode
   clack_distance: Zoutniveau afstand
   clack_procent: Zoutniveau procent
+  clack_animation: Zoutniveau voor dashboard
   clack_height: Zoutniveau hoogte
   clack_watermeter_total: Watermeter
   clack_m3_left: Waterontharder m3 over

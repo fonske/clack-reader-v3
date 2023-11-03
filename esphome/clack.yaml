@@ -193,12 +193,12 @@ sensor:
   - platform: copy
     source_id: clack_procent
     id: clack_salt_level
-    name: "Salt level"
+    name: ${clack_animation}
     filters:
     - lambda: |-
         if (x >= 80) return 100;
         else if (x >= 65 && x <= 79) return 80;
-        else if (x >= 40 && x <= 64) return 60;   
+        else if (x >= 40 && x <= 64) return 60;
         else if (x >= 20 && x <= 39) return 40;
         else if (x >= 10 && x <= 19) return 20;
         else if (x >= 5 && x <= 9) return 10;
