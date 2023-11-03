@@ -8,9 +8,10 @@
 ## Installation
 For installation of this module you need to open the clack cover, this can be achieved by gently pulling on the 2 clips on the side. 
 
-Once open, there is just enough space on the right, but this module is designed to be on the bottom
+Once open, there is just enough space on the right side inside the Clack for the Clack reader PCB, but the chlorinator PCB is designed to be on the bottom
 
-For the Distance sensor, you might want to drill a hole in the back of the module so you can pull the wire trough (a 10 MM hole will work)
+For the Distance sensor, first install the 4-wire cable through the hole were the power supply goes through, after that the wire of the power supply.
+The flex cable will not be in the way, when inserted first, instead of the other way around.
 
 Connecting the module:
 
