@@ -108,7 +108,7 @@ binary_sensor:
         - globals.set:
             id: regeneration_last
             value: !lambda |-
-              return id(clack_regeneration_last);
+              return {id(clack_regeneration_last)};
         - sensor.template.publish:
             id: clack_watermeter
             state: !lambda |-
@@ -168,7 +168,7 @@ button:
         - globals.set:
             id: regeneration_last
             value: !lambda |-
-              return id(clack_regeneration_last);
+              return {id(clack_regeneration_last)};
         - sensor.template.publish:
             id: clack_watermeter
             state: !lambda |-
