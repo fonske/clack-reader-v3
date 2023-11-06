@@ -76,7 +76,7 @@ globals:
   - id: regeneration_last
     type: std::string
     restore_value: yes
-    initial_value: 'Never'
+    initial_value: '"Never"'
 
 script:
 ###  On reboot or powerloss of the esp, set the time left and capacity counters

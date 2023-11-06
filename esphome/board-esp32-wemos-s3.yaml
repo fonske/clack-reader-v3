@@ -98,13 +98,17 @@ binary_sensor:
         - globals.set:
             id: totalWaterUsage
             value: '00'
-        - text_sensor.template.publish:
-            id: clack_regeneration_last
-            state: !lambda |-
+        - globals.set:
+            id: regeneration_last
+            value: !lambda |-
               char str[32];
               time_t currTime = id(clack_sntp_time).now().timestamp;
               strftime(str, sizeof(str), "%a %d %b %H:%M", localtime(&currTime));
               return  { str };
+        - text_sensor.template.publish:
+            id: clack_regeneration_last
+            state: !lambda: |-
+              return id(regeneration_last);
         - sensor.template.publish:
             id: clack_watermeter
             state: !lambda |-
@@ -154,13 +158,17 @@ button:
         - globals.set:
             id: totalWaterUsage
             value: '00'
-        - text_sensor.template.publish:
-            id: clack_regeneration_last
-            state: !lambda |-
+        - globals.set:
+            id: regeneration_last
+            value: !lambda |-
               char str[32];
               time_t currTime = id(clack_sntp_time).now().timestamp;
               strftime(str, sizeof(str), "%a %d %b %H:%M", localtime(&currTime));
               return  { str };
+        - text_sensor.template.publish:
+            id: clack_regeneration_last
+            state: !lambda: |-
+              return id(regeneration_last);
         - sensor.template.publish:
             id: clack_watermeter
             state: !lambda |-
