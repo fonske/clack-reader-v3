@@ -76,7 +76,7 @@ globals:
     initial_value: '"Never"'
 
 script:
-###  On reboot or powerloss of the esp, set the time left and capacity counters
+###  On reboot or powerloss of the esp, set the time left, last regeneration time, and capacity counters
   - id: on_boot
     then:
       - sensor.template.publish:
