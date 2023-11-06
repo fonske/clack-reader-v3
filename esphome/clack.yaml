@@ -38,6 +38,9 @@ api:
         - globals.set:
             id: totalWaterUsage
             value: !lambda "return ( meter_value ) ;"
+        - globals.set:
+            id: regeneration_last
+            value: !lambda "return ( clack_regeneration_last ) ;"
 
 time:
   - platform: sntp
@@ -70,7 +73,7 @@ globals:
     initial_value: '05'
 
 # Define a global variable for last regeneration time
-  - id: clack_regeneration_last
+  - id: regeneration_last
     type: std::string
     restore_value: yes
     initial_value: 'Never'

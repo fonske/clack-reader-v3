@@ -37,3 +37,5 @@ text_sensor:
     id: clack_regeneration_last
     icon: mdi:clock-start
     update_interval: never
+    lambda: |-
+      return id(regeneration_last);
