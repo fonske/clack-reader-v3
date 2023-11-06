@@ -69,18 +69,16 @@ globals:
     restore_value: yes
     initial_value: '05'
 
+# Define a global variable for last regeneration time
+  - id: clack_regeneration_last
+    type: std::string
+    restore_value: yes
+    initial_value: 'Never'
 
 script:
 ###  On reboot or powerloss of the esp, set the time left and capacity counters
   - id: on_boot
     then:
-      - text_sensor.template.publish:
-          id: clack_regeneration_last
-          state: !lambda |-
-            char str[32];
-            time_t currTime = id(clack_sntp_time).now().timestamp;
-            strftime(str, sizeof(str), "%a %d %b %H:%M", localtime(&currTime));
-            return  { str };
       - sensor.template.publish:
           id: clack_m3_left
           state: !lambda |-
