@@ -107,7 +107,7 @@ binary_sensor:
               return  { str };
         - text_sensor.template.publish:
             id: clack_regeneration_last
-            state: !lambda: |-
+            state: !lambda |-
               return id(regeneration_last);
         - sensor.template.publish:
             id: clack_watermeter
@@ -167,7 +167,7 @@ button:
               return  { str };
         - text_sensor.template.publish:
             id: clack_regeneration_last
-            state: !lambda: |-
+            state: !lambda |-
               return id(regeneration_last);
         - sensor.template.publish:
             id: clack_watermeter
