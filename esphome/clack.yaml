@@ -17,6 +17,7 @@ packages:
   remote_package:
     url: https://github.com/fonske/clack-reader-v3
     ref: main
+    refresh: 0s
     files: [ esphome/.clack-labels-en.yaml, esphome/board-esp32-wemos-s3.yaml ]
 
 
