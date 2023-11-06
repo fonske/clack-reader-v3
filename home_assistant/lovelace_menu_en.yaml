@@ -131,11 +131,10 @@ views:
           - entity: sensor.water_softener_regenerated_on
           - entity: binary_sensor.watermeter_pulse
           - entity: binary_sensor.regeneration_pulse
-          - entity: sensor.salt_level
           - entity: button.test_button_use_pulse
           - entity: button.test_button_regen_pulse
       - elements:
-          - entity: sensor.salt_level
+          - entity: sensor.salt_level_for_dashboard
             image: local/images/softener.png
             state_image:
               '0': local/images/softener0.png

@@ -133,14 +133,13 @@ views:
           - entity: sensor.waterontharder_geregenereerd_op
           - entity: binary_sensor.watermeter_pulse
           - entity: binary_sensor.regeneratie_pulse
-          - entity: sensor.salt_level
           - entity: button.test_button_use_pulse
           - entity: button.test_button_regen_pulse
           - entity: sensor.power
           - entity: sensor.voltage
           - entity: sensor.current
       - elements:
-          - entity: sensor.salt_level
+          - entity: sensor.zoutniveau_voor_dashboard
             image: local/images/softener.png
             state_image:
               '0': local/images/softener0.png
