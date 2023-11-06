@@ -2,6 +2,7 @@ substitutions:
   clack_select_chl_or_dpsw: Function mode
   clack_distance: Salt level distance
   clack_procent: Salt level percent
+  clack_animation: Salt level for dashboard
   clack_height: Salt level height
   clack_watermeter_total: Water meter
   clack_m3_left: Water softener m3 left
@@ -36,3 +37,5 @@ text_sensor:
     id: clack_regeneration_last
     icon: mdi:clock-start
     update_interval: never
+    lambda: |-
+      return id(regeneration_last);

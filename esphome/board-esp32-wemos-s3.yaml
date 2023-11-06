@@ -104,6 +104,7 @@ binary_sensor:
               char str[32];
               time_t currTime = id(clack_sntp_time).now().timestamp;
               strftime(str, sizeof(str), "%a %d %b %H:%M", localtime(&currTime));
+              id(regeneration_last) = str;
               return  { str };
         - sensor.template.publish:
             id: clack_watermeter
@@ -160,6 +161,7 @@ button:
               char str[32];
               time_t currTime = id(clack_sntp_time).now().timestamp;
               strftime(str, sizeof(str), "%a %d %b %H:%M", localtime(&currTime));
+              id(regeneration_last) = str;
               return  { str };
         - sensor.template.publish:
             id: clack_watermeter

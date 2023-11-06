@@ -17,6 +17,7 @@ packages:
   remote_package:
     url: https://github.com/fonske/clack-reader-v3
     ref: main
+    refresh: 0s
     files: [ esphome/.clack-labels-en.yaml, esphome/board-esp32-wemos-s3.yaml ]
 
 
@@ -38,6 +39,18 @@ api:
         - globals.set:
             id: totalWaterUsage
             value: !lambda "return ( meter_value ) ;"
+        - sensor.template.publish:
+            id: clack_watermeter
+            state: !lambda |-
+              return id(totalWaterUsage);
+        - sensor.template.publish:
+            id: clack_m3_left
+            state: !lambda |-
+              return float(id(clack_capacity_liters).state - id(clack_watermeter).state) * 0.001;
+        - sensor.template.publish:
+            id: clack_l_left
+            state: !lambda |-
+              return int(id(clack_capacity_liters).state - id(clack_watermeter).state);
 
 time:
   - platform: sntp
@@ -69,18 +82,28 @@ globals:
     restore_value: yes
     initial_value: '05'
 
+# Define a global variable for last regeneration time
+  - id: regeneration_last
+    type: std::string
+    restore_value: yes
+    initial_value: '"Never"'
 
 script:
-###  On reboot or powerloss of the esp, set the time left counter
+###  On reboot or powerloss of the esp, set the time left, last regeneration time, and capacity counters
   - id: on_boot
     then:
-      - text_sensor.template.publish:
-          id: clack_regeneration_last
+      - sensor.template.publish:
+          id: clack_m3_left
           state: !lambda |-
-            char str[32];
-            time_t currTime = id(clack_sntp_time).now().timestamp;
-            strftime(str, sizeof(str), "%a %d %b %H:%M", localtime(&currTime));
-            return  { str };
+            return float(id(clack_capacity_liters).state - id(clack_watermeter).state) * 0.001;
+      - sensor.template.publish:
+          id: clack_l_left
+          state: !lambda |-
+            return int(id(clack_capacity_liters).state - id(clack_watermeter).state);
+      - text_sensor.template.publish:
+            id: clack_regeneration_last
+            state: !lambda |-
+              return id(regeneration_last);
 
 ###  Define a script that turns on the chlorinator relay, waits for the duration, and turns it off
   - id: chlorinator_start
@@ -227,12 +250,12 @@ sensor:
   - platform: copy
     source_id: clack_procent
     id: clack_salt_level
-    name: "Salt level"
+    name: ${clack_animation}
     filters:
     - lambda: |-
         if (x >= 80) return 100;
         else if (x >= 65 && x <= 79) return 80;
-        else if (x >= 40 && x <= 64) return 60;   
+        else if (x >= 40 && x <= 64) return 60;
         else if (x >= 20 && x <= 39) return 40;
         else if (x >= 10 && x <= 19) return 20;
         else if (x >= 5 && x <= 9) return 10;
