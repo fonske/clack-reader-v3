@@ -8,7 +8,7 @@ substitutions:
   clack_m3_left: Water softener m3 left
   clack_l_left: Water softener ltr left
   clack_version: Version
-  clack_regeneration_last: Water softener regenerated on
+  clack_regeneration_last: Regenerated on
   clack_fill_salt: Fill salt
   clack_saltlevel_height_min: Min salt distance
   clack_saltlevel_height_max: Max salt distance

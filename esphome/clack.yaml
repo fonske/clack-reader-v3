@@ -18,7 +18,7 @@ packages:
     url: https://github.com/fonske/clack-reader-v3
     ref: main
     refresh: 0s
-    files: [ esphome/.clack-labels-en.yaml, esphome/board-esp32-wemos-s3.yaml ]
+    files: [ esphome/.clack-labels-nl.yaml, esphome/board-esp32-wemos-s3.yaml ]
 
 
 esphome:
@@ -125,7 +125,7 @@ light:
     # RMT 0 channels will be occupied by IR
     rmt_channel: 1
     chipset: ws2812
-    restore_mode: RESTORE_DEFAULT_ON
+    restore_mode: RESTORE_DEFAULT_OFF
 
 #-----------
 #SENSORS
@@ -484,7 +484,7 @@ number:
     restore_value: yes
     unit_of_measurement: "days"
   ##
-  # Set chlorinator relay off-delay
+  # Set chlorinator relay off-delay (from start reg. pulse! So also backwash included)
   - platform: template
     id: clack_chlorinator_delay
     name: ${clack_chlorinator_delay}
@@ -494,8 +494,8 @@ number:
     step: 1
     entity_category: config
     min_value: 0
-    max_value: 15
-    initial_value: 5
+    max_value: 25
+    initial_value: 10
     restore_value: yes
     unit_of_measurement: "min"
     on_value:

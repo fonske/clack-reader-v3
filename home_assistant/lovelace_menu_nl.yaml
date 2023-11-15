@@ -130,7 +130,7 @@ views:
           - entity: sensor.zoutniveau_procent
             name: Procent
           - entity: sensor.zout_bijvullen
-          - entity: sensor.waterontharder_geregenereerd_op
+          - entity: sensor.geregenereerd_op
           - entity: binary_sensor.watermeter_pulse
           - entity: binary_sensor.regeneratie_pulse
           - entity: button.test_button_use_pulse

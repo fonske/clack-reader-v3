@@ -128,7 +128,7 @@ views:
           - entity: sensor.salt_level_percent
             name: Procent
           - entity: sensor.fill_salt
-          - entity: sensor.water_softener_regenerated_on
+          - entity: sensor.regenerated_on
           - entity: binary_sensor.watermeter_pulse
           - entity: binary_sensor.regeneration_pulse
           - entity: button.test_button_use_pulse

@@ -8,7 +8,7 @@ substitutions:
   clack_m3_left: Waterontharder m3 over
   clack_l_left: Waterontharder ltr over
   clack_version: Versie
-  clack_regeneration_last: Waterontharder geregenereerd op
+  clack_regeneration_last: Geregenereerd op
   clack_fill_salt: Zout bijvullen
   clack_saltlevel_height_min: Min afstand zout
   clack_saltlevel_height_max: Max afstand zout
