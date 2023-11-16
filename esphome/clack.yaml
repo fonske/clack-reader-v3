@@ -125,7 +125,7 @@ light:
     # RMT 0 channels will be occupied by IR
     rmt_channel: 1
     chipset: ws2812
-    restore_mode: RESTORE_DEFAULT_OFF
+    restore_mode: RESTORE_DEFAULT_ON
 
 #-----------
 #SENSORS
@@ -186,11 +186,13 @@ sensor:
     filters:
       - filter_out: nan
       - lambda: return x*100;
+      ### comment with # if you want a direct reading
       - median:
           window_size: 15
           send_every: 7
           send_first_at: 1
       - delta: 0.5
+      ###
       - clamp:
           min_value: 0.0
           max_value: 160.0
@@ -484,7 +486,7 @@ number:
     restore_value: yes
     unit_of_measurement: "days"
   ##
-  # Set chlorinator relay off-delay (from start reg. pulse! So also backwash included)
+  # Set chlorinator relay off-delay
   - platform: template
     id: clack_chlorinator_delay
     name: ${clack_chlorinator_delay}
@@ -495,7 +497,7 @@ number:
     entity_category: config
     min_value: 0
     max_value: 25
-    initial_value: 10
+    initial_value: 12
     restore_value: yes
     unit_of_measurement: "min"
     on_value:
