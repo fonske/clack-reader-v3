@@ -6,6 +6,7 @@ esp32:
   framework:
     type: arduino
 #    version: latest
+  flash_size: 4MB
 
 # the m5stack TOF sensor vl53l0x is I2C
 i2c:  
