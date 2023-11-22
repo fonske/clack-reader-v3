@@ -70,6 +70,10 @@ wifi:
     password: "configesp"
     ap_timeout: 15s
 
+# enable IMPROV wifi, connection hotspot via bluetooth. see https://www.improv-wifi.com/
+esp32_improv:
+  authorizer: None 
+  
 globals:
   - id: totalWaterUsage
     type: float
