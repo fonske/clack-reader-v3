@@ -70,6 +70,10 @@ wifi:
     password: "configesp"
     ap_timeout: 15s
 
+# enable IMPROV wifi, connection hotspot via bluetooth. see https://www.improv-wifi.com/
+esp32_improv:
+  authorizer: None 
+
 globals:
   - id: totalWaterUsage
     type: float
@@ -80,7 +84,7 @@ globals:
   - id: duration
     type: int
     restore_value: yes
-    initial_value: '05'
+    initial_value: '15'
 
 # Define a global variable for last regeneration time
   - id: regeneration_last
@@ -125,7 +129,7 @@ light:
     # RMT 0 channels will be occupied by IR
     rmt_channel: 1
     chipset: ws2812
-    restore_mode: RESTORE_DEFAULT_ON
+    restore_mode: ALWAYS_OFF
 
 #-----------
 #SENSORS
@@ -135,14 +139,14 @@ sensor:
   # Diagnostics wifi and uptime      
   - platform: wifi_signal # Reports the WiFi signal strength/RSSI in dB
     id: clack_wifi_signal_db
-    name: "WiFi Signal dB"
+    name: WiFi Signal dB
     update_interval: 60s
     entity_category: diagnostic
 
   - platform: copy # Reports the WiFi signal strength in %
     source_id: clack_wifi_signal_db
     id: clack_wifi_signal_db_percent
-    name: "WiFi Signal"
+    name: WiFi Signal
     filters:
       - lambda: return min(max(2 * (x + 100.0), 0.0), 100.0);
     unit_of_measurement: "%"
@@ -164,15 +168,15 @@ sensor:
     address: 0x40
     shunt_resistance: 0.1 ohm
     current:
-      name: "Current"
+      name: Current
     power:
-      name: "Power"
+      name: Power
       filters:
         - delta: 0.05
     bus_voltage:
-      name: "Voltage"
+      name: Voltage
     shunt_voltage:
-      name: "Shunt Voltage"
+      name: Shunt Voltage
     max_voltage: 32.0V
     max_current: 3.2A
     update_interval: 5s
@@ -208,7 +212,7 @@ sensor:
   - platform: template
     name: ${clack_distance}
     id:  clack_distance
-    unit_of_measurement: "cm"
+    unit_of_measurement: cm
     accuracy_decimals: 1
     icon: "mdi:arrow-expand-vertical" 
     on_value:
@@ -269,7 +273,7 @@ sensor:
   - platform: template
     id: clack_height
     name: ${clack_height}
-    unit_of_measurement: "cm"
+    unit_of_measurement: cm
     accuracy_decimals: 1
     icon: "mdi:hydraulic-oil-level" 
     update_interval: ${clack_height_update_interval}
@@ -287,10 +291,13 @@ sensor:
   - platform: template
     id: clack_watermeter
     name: ${clack_watermeter_total}
-    state_class: "total_increasing"
+    state_class: total_increasing
+    device_class: water
     icon: mdi:water
     update_interval: ${watermeter_update_interval}
-    unit_of_measurement: "l"
+    unit_of_measurement: L
+    device_class: water
+    state_class: total_increasing
     accuracy_decimals: 0
     lambda: |-
       return id(totalWaterUsage);
@@ -298,14 +305,16 @@ sensor:
   - platform: template  
     id: clack_m3_left
     name: ${clack_m3_left}
-    unit_of_measurement: 'm3'
+    unit_of_measurement: m³
+    device_class: water
     accuracy_decimals: 2
     update_interval: ${watermeter_update_interval}
 
   - platform: template
     id: clack_l_left
     name: ${clack_l_left}
-    unit_of_measurement: 'l'
+    unit_of_measurement: L
+    device_class: water
     accuracy_decimals: 0
     update_interval: ${watermeter_update_interval}
 
@@ -372,7 +381,7 @@ number:
     max_value: 10
     initial_value: 0
     restore_value: yes
-    unit_of_measurement: "cm"
+    unit_of_measurement: cm
     on_value:
       then:
         - sensor.template.publish:
@@ -401,7 +410,7 @@ number:
     max_value: 100
     initial_value: 30
     restore_value: yes
-    unit_of_measurement: "cm"
+    unit_of_measurement: cm
     on_value:
       then:
         - sensor.template.publish:
@@ -429,7 +438,7 @@ number:
     max_value: 10
     initial_value: 1.5
     restore_value: yes
-    unit_of_measurement: "cm"
+    unit_of_measurement: cm
     update_interval: 600s
     on_value:
       then:
@@ -455,7 +464,7 @@ number:
     max_value: 7200
     initial_value: 3200
     restore_value: yes
-    unit_of_measurement: "l"
+    unit_of_measurement: L
     on_value:
       then:
         - sensor.template.publish:
@@ -484,7 +493,7 @@ number:
     max_value: 21
     initial_value: 10
     restore_value: yes
-    unit_of_measurement: "days"
+    unit_of_measurement: ${days}
   ##
   # Set chlorinator relay off-delay
   - platform: template
@@ -497,7 +506,7 @@ number:
     entity_category: config
     min_value: 0
     max_value: 25
-    initial_value: 12
+    initial_value: 10
     restore_value: yes
     unit_of_measurement: "min"
     on_value:
