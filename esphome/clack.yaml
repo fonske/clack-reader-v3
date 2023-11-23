@@ -287,8 +287,6 @@ sensor:
   - platform: template
     id: clack_watermeter
     name: ${clack_watermeter_total}
-    state_class: total_increasing
-    device_class: water
     icon: mdi:water
     update_interval: ${watermeter_update_interval}
     unit_of_measurement: L
