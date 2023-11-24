@@ -16,7 +16,7 @@ i2c:
     scan: true
 
 # get rid of CDC error
-esphome:
+#esphome:
 #  platformio_options:
 #    board_build.arduino.memory_type: qio_qspi
 #    board_upload.ram_size: 327680
