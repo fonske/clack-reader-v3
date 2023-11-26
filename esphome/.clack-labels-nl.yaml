@@ -29,6 +29,10 @@ substitutions:
   clack_no: nee
   clack_on: Aan
   clack_off: Uit
+  clack_power: Vermogen
+  clack_current: Stroom
+  clack_voltage: Spanning
+  clack_shunt_voltage: Shunt spanning
 
 text_sensor:
   # Expose last regeneration information as sensor

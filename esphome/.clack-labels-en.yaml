@@ -29,6 +29,10 @@ substitutions:
   clack_no: "no"
   clack_on: "On"
   clack_off: "Off"
+  clack_power: Power
+  clack_current: Current
+  clack_voltage: Voltage
+  clack_shunt_voltage: Voltage
 
 text_sensor:
   # Expose last regeneration information as sensor / already in English
