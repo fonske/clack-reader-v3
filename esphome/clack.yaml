@@ -296,7 +296,7 @@ sensor:
     unit_of_measurement: L
     device_class: water
     state_class: total_increasing
-    accuracy_decimals: 2
+    accuracy_decimals: 1
     lambda: |-
       return id(totalWaterUsage);
 
@@ -313,7 +313,7 @@ sensor:
     name: ${clack_l_left}
     unit_of_measurement: L
     device_class: water
-    accuracy_decimals: 2
+    accuracy_decimals: 0
     update_interval: ${watermeter_update_interval}
 
 switch:
