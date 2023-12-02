@@ -168,6 +168,7 @@ sensor:
     id: clack_wifi_signal_db
     name: WiFi Signal dB
     update_interval: 60s
+    device_class: signal_strength
     entity_category: diagnostic
 
   - platform: copy # Reports the WiFi signal strength in %
@@ -275,7 +276,6 @@ sensor:
     accuracy_decimals: 0
     icon: "mdi:percent-box-outline" 
     update_interval: ${tank_percentage_update_interval}
-    device_class: percentage
     state_class: measurement
     filters:
     - lambda: |-
