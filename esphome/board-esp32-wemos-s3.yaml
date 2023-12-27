@@ -74,7 +74,7 @@ binary_sensor:
         - sensor.template.publish:
             id: clack_watermeter
             state: !lambda |-
-              return id(totalWaterUsage) += int(${pulse_liters});
+              return id(totalWaterUsage) += float(${pulse_liters});
         - sensor.template.publish:
             id: clack_m3_left
             state: !lambda |-
@@ -138,7 +138,7 @@ button:
         - sensor.template.publish:
             id: clack_watermeter
             state: !lambda |-
-              return id(totalWaterUsage) += int(${pulse_liters});
+              return id(totalWaterUsage) += float(${pulse_liters});
         - sensor.template.publish:
             id: clack_m3_left
             state: !lambda |-
