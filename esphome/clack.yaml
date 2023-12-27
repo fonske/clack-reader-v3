@@ -2,15 +2,16 @@ substitutions:
   # General substitutions"
   name: clack
   device_description: "Esphome component for Clack WS1 softener with TOF sensor saltlevel detection"
-  timezone: "Europe/Amsterdam"  
+  timezone: "Europe/Amsterdam"
   # Interval substitutions:
   salt_level_update_interval: 30s
   watermeter_update_interval: 600s # 10 minutes
   tank_percentage_update_interval: 600s
   clack_height_update_interval: 600s
+  pulse_liters: "2.2"
 
 # In order to use other language or a different ESP chip, fix include file name below:
-# Currently supported languages are en (english), nl (dutch). 
+# Currently supported languages are en (english), nl (dutch).
 # ESP32-wemos-s3 is a wemos lolin S3 mini
 packages:
   remote_package:
@@ -77,8 +78,8 @@ wifi:
 globals:
   - id: totalWaterUsage
     type: float
-    restore_value: yes          
-    initial_value: '00' 
+    restore_value: yes
+    initial_value: '00'
 
 # Define a global variable for the chlorinator delay duration in minutes
   - id: duration
@@ -162,8 +163,8 @@ light:
 #SENSORS
 #-----------
 sensor:
-  ## 
-  # Diagnostics wifi and uptime      
+  ##
+  # Diagnostics wifi and uptime
   - platform: wifi_signal # Reports the WiFi signal strength/RSSI in dB
     id: clack_wifi_signal_db
     name: WiFi Signal dB
@@ -191,7 +192,7 @@ sensor:
 
 
   ##
-  # Power meter 
+  # Power meter
   - platform: ina219
     address: 0x40
     shunt_resistance: 0.1 ohm
@@ -242,7 +243,7 @@ sensor:
     id:  clack_distance
     unit_of_measurement: cm
     accuracy_decimals: 1
-    icon: "mdi:arrow-expand-vertical" 
+    icon: "mdi:arrow-expand-vertical"
     device_class: distance
     state_class: measurement
     on_value:
@@ -266,15 +267,15 @@ sensor:
               } else {
                 return {"${clack_no}"};
               }
-    
-  ##    
+
+  ##
   # ultrasonic distance sensor calculate tank_percentage
   - platform: template
     id: clack_procent
     name: ${clack_procent}
     unit_of_measurement: "%"
     accuracy_decimals: 0
-    icon: "mdi:percent-box-outline" 
+    icon: "mdi:percent-box-outline"
     update_interval: ${tank_percentage_update_interval}
     state_class: measurement
     filters:
@@ -283,7 +284,7 @@ sensor:
         else if (x <= 0.0) return 0.0;
         else return x;
   ##
-  # Saltlevel animation picture on dashboard  
+  # Saltlevel animation picture on dashboard
   - platform: copy
     source_id: clack_procent
     id: clack_salt_level
@@ -299,14 +300,14 @@ sensor:
         else if (x <= 4) return 0;
         else return x;
 
-  ##      
+  ##
   # ultrasonic distance sensor calculate salt level from bottom
   - platform: template
     id: clack_height
     name: ${clack_height}
     unit_of_measurement: cm
     accuracy_decimals: 1
-    icon: "mdi:hydraulic-oil-level" 
+    icon: "mdi:hydraulic-oil-level"
     update_interval: ${clack_height_update_interval}
     device_class: distance
     state_class: measurement
@@ -320,7 +321,7 @@ sensor:
 # CLACK
 #------
   ##
-  #  Watermeter  
+  #  Watermeter
   - platform: template
     id: clack_watermeter
     name: ${clack_watermeter_total}
@@ -333,7 +334,7 @@ sensor:
     lambda: |-
       return id(totalWaterUsage);
 
-  - platform: template  
+  - platform: template
     id: clack_m3_left
     name: ${clack_m3_left}
     unit_of_measurement: m³
@@ -367,7 +368,7 @@ select:
     name: ${clack_select_chl_or_dpsw}
     platform: template
     options:
-      - ${clack_off}     
+      - ${clack_off}
       - ${clack_chlorinator}
     initial_option: ${clack_off}
     optimistic: true
@@ -397,7 +398,7 @@ text_sensor:
     icon: mdi:basket-fill
     update_interval: never
 
-##      
+##
 # imput numbers as sliders for setting the dimensions of the tank and level alarm.
 number:
   ##
@@ -427,9 +428,9 @@ number:
             id: clack_height
             state: !lambda |-
               const float max_distance = id(clack_saltlevel_height_max).state;  // height in cm to lowest level
-              return max_distance-id(clack_distance).state; 
+              return max_distance-id(clack_distance).state;
 
-  ##            
+  ##
   # Set maximum distance (from bottom sensor / underneath plastic cap) to water level (to measure in pipe?)
   - platform: template
     id: clack_saltlevel_height_max
@@ -512,8 +513,8 @@ number:
             id: clack_l_left
             state: !lambda |-
               return int(id(clack_capacity_liters).state - id(clack_watermeter).state);
-  ##  
-  # Set capacity days  
+  ##
+  # Set capacity days
   - platform: template
     id: clack_capacity_days
     name: ${clack_capacity_days}
