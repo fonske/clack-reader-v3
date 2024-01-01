@@ -252,4 +252,6 @@ views:
             name: Wifi signaal db          
           - entity: light.clack_led
             name: Led 
+          - entity: sensor.clack_uptime
+            name: Uptime
         title: Instellingen
