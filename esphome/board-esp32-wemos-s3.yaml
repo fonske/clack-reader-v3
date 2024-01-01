@@ -65,7 +65,7 @@ binary_sensor:
         input: true
         pullup: true
     id: clack_watermeter_pulse
-    name: ${clack_watermeter_pulse}
+    name: ${name} ${clack_watermeter_pulse}
 #    icon: mdi:toggle-switch-variant
     filters:
       - delayed_on_off: 50ms
@@ -93,7 +93,7 @@ binary_sensor:
         input: true
         pullup: true
     id: clack_regeneration_pulse
-    name: ${clack_regeneration_pulse}
+    name: ${name} ${clack_regeneration_pulse}
 #    icon: mdi:toggle-switch-variant
     filters:
       - delayed_on_off: 800ms
@@ -131,7 +131,7 @@ binary_sensor:
 button:
 ## temporary test button for testing water meter pulse
   - id: clack_use_test_button
-    name: Test button use pulse
+    name: ${name} Test button use pulse
     platform: template
     on_press:
       then:
@@ -152,7 +152,7 @@ button:
 
 ## temporary test button for testing regeneration pulse
   - id: clack_reg_test_button
-    name: Test button regen pulse
+    name: ${name} Test button regen pulse
     platform: template
     on_press:
       then:

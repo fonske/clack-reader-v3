@@ -10,7 +10,7 @@ substitutions:
   clack_height_update_interval: 600s
   pulse_liters: "2.2"
 
-# In order to use other language or a different ESP chip, fix include file name below:
+# In order to use other language fix clack-label filename below:
 # Currently supported languages are en (english), nl (dutch).
 # ESP32-wemos-s3 is a wemos lolin S3 mini
 packages:
@@ -18,7 +18,7 @@ packages:
     url: https://github.com/fonske/clack-reader-v3
     ref: main
     refresh: 0s
-    files: [ esphome/.clack-labels-nl.yaml, esphome/board-esp32-wemos-s3.yaml ]
+    files: [ esphome/.clack-labels-en.yaml, esphome/board-esp32-wemos-s3.yaml ]
 
 ## for developing/testing, uncomment local includes and comment out above remote_package packages part.
 #packages:
@@ -149,7 +149,7 @@ script:
 light:
 #G47=RGB WS2812C-2020
   - platform: esp32_rmt_led_strip
-    name: Led
+    name: ${name} Led
     id: led
     rgb_order: GRB
     pin: 47
@@ -167,7 +167,7 @@ sensor:
   # Diagnostics wifi and uptime
   - platform: wifi_signal # Reports the WiFi signal strength/RSSI in dB
     id: clack_wifi_signal_db
-    name: WiFi Signal dB
+    name: ${name} WiFi Signal dB
     update_interval: 60s
     device_class: signal_strength
     entity_category: diagnostic
@@ -175,7 +175,7 @@ sensor:
   - platform: copy # Reports the WiFi signal strength in %
     source_id: clack_wifi_signal_db
     id: clack_wifi_signal_db_percent
-    name: WiFi Signal
+    name: ${name} WiFi Signal
     filters:
       - lambda: return min(max(2 * (x + 100.0), 0.0), 100.0);
     unit_of_measurement: "%"
@@ -183,7 +183,7 @@ sensor:
 
   - platform: uptime
     id: clack_uptime
-    name: ${clack_uptime}
+    name: ${name} ${clack_uptime}
     unit_of_measurement: ${days}
     update_interval: 3600s
     accuracy_decimals: 1
@@ -197,15 +197,15 @@ sensor:
     address: 0x40
     shunt_resistance: 0.1 ohm
     current:
-      name: Current
+      name: ${name} Current
     power:
-      name: Power
+      name: ${name} Power
       filters:
         - delta: 0.05
     bus_voltage:
-      name: Voltage
+      name: ${name} Voltage
     shunt_voltage:
-      name: Shunt Voltage
+      name: ${name} Shunt Voltage
     max_voltage: 32.0V
     max_current: 3.2A
     update_interval: 5s
@@ -239,7 +239,7 @@ sensor:
   ##
   # ultrasonic distance sensor.
   - platform: template
-    name: ${clack_distance}
+    name: ${name} ${clack_distance}
     id:  clack_distance
     unit_of_measurement: cm
     accuracy_decimals: 1
@@ -272,7 +272,7 @@ sensor:
   # ultrasonic distance sensor calculate tank_percentage
   - platform: template
     id: clack_procent
-    name: ${clack_procent}
+    name: ${name} ${clack_procent}
     unit_of_measurement: "%"
     accuracy_decimals: 0
     icon: "mdi:percent-box-outline"
@@ -288,7 +288,7 @@ sensor:
   - platform: copy
     source_id: clack_procent
     id: clack_salt_level
-    name: ${clack_animation}
+    name: ${name} ${clack_animation}
     filters:
     - lambda: |-
         if (x >= 80) return 100;
@@ -304,7 +304,7 @@ sensor:
   # ultrasonic distance sensor calculate salt level from bottom
   - platform: template
     id: clack_height
-    name: ${clack_height}
+    name: ${name} ${clack_height}
     unit_of_measurement: cm
     accuracy_decimals: 1
     icon: "mdi:hydraulic-oil-level"
@@ -324,7 +324,7 @@ sensor:
   #  Watermeter
   - platform: template
     id: clack_watermeter
-    name: ${clack_watermeter_total}
+    name: ${name} ${clack_watermeter_total}
     icon: mdi:water
     update_interval: ${watermeter_update_interval}
     unit_of_measurement: L
@@ -336,7 +336,7 @@ sensor:
 
   - platform: template
     id: clack_m3_left
-    name: ${clack_m3_left}
+    name: ${name} ${clack_m3_left}
     unit_of_measurement: m³
     device_class: water
     state_class: total_increasing
@@ -345,7 +345,7 @@ sensor:
 
   - platform: template
     id: clack_l_left
-    name: ${clack_l_left}
+    name: ${name} ${clack_l_left}
     unit_of_measurement: L
     device_class: water
     state_class: total_increasing
@@ -359,13 +359,13 @@ switch:
     pin:
       number: 10
       inverted: false
-    name: ${clack_chlorinator}
+    name: ${name} ${clack_chlorinator}
     id: chlorinator_relay
     icon: mdi:alarm-bell
 
 select:
   - id: clack_select_chl_or_dpsw
-    name: ${clack_select_chl_or_dpsw}
+    name: ${name} ${clack_select_chl_or_dpsw}
     platform: template
     options:
       - ${clack_off}
@@ -380,20 +380,20 @@ text_sensor:
   # Expose ESPHome version as sensor.
   - platform: version
     id: clack_version
-    name: ${clack_version}
+    name: ${name} ${clack_version}
     hide_timestamp: true
 
   ##
   # Expose WiFi information as sensors.
   - platform: wifi_info
     ip_address:
-      name: ${clack_ip}
+      name: ${name} ${clack_ip}
       icon: mdi:ip-network
 
   ##
   # Textsensor "Fill Salt" yes or no.
   - platform: template
-    name: ${clack_fill_salt}
+    name: ${name} ${clack_fill_salt}
     id: clack_fill_salt
     icon: mdi:basket-fill
     update_interval: never
@@ -405,7 +405,7 @@ number:
   # Set minimum distance (from bottom sensor / above plastic cap)
   - platform: template
     id: clack_saltlevel_height_min
-    name: ${clack_saltlevel_height_min}
+    name: ${name} ${clack_saltlevel_height_min}
     icon: mdi:toggle-switch-variant
     optimistic: true
     mode: slider
@@ -434,7 +434,7 @@ number:
   # Set maximum distance (from bottom sensor / underneath plastic cap) to water level (to measure in pipe?)
   - platform: template
     id: clack_saltlevel_height_max
-    name: ${clack_saltlevel_height_max}
+    name: ${name} ${clack_saltlevel_height_max}
     icon: mdi:toggle-switch-variant-off
     optimistic: true
     mode: slider
@@ -462,7 +462,7 @@ number:
   # Set alarm level
   - platform: template
     id: clack_saltlevel_height_fill
-    name: ${clack_saltlevel_height_fill}
+    name: ${name} ${clack_saltlevel_height_fill}
     icon: mdi:hydraulic-oil-temperature
     optimistic: true
     mode: slider
@@ -488,7 +488,7 @@ number:
   # Set capacity liters
   - platform: template
     id: clack_capacity_liters
-    name: ${clack_capacity_liters}
+    name: ${name} ${clack_capacity_liters}
     icon: mdi:water-opacity
     optimistic: true
     mode: slider
@@ -517,7 +517,7 @@ number:
   # Set capacity days
   - platform: template
     id: clack_capacity_days
-    name: ${clack_capacity_days}
+    name: ${name} ${clack_capacity_days}
     icon: mdi:calendar-clock
     optimistic: true
     mode: slider
@@ -532,7 +532,7 @@ number:
   # Set chlorinator relay off-delay
   - platform: template
     id: clack_chlorinator_delay
-    name: ${clack_chlorinator_delay}
+    name: ${name} ${clack_chlorinator_delay}
     icon: mdi:toggle-switch-variant
     optimistic: true
     mode: slider

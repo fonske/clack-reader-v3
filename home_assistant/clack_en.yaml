@@ -5,7 +5,7 @@
 # Removing this step reduces the amount of wastewater en is probably not necessary for the performance of the softener
 # This can be setup in the clack menus. See manual.
 input_select:
-  water_softener_status:
+  clack_water_softener_status:
     name: Water softener status
     options:
       - Backwash
@@ -52,7 +52,7 @@ template:
   sensor:
     - name: "time_to_regeneration" # custom sensor that calculates the expected number of days till the next regeneration
       state: >
-        {%- set time = (states('number.capacity_in_days') | int * 86400) - (as_timestamp(now()) - as_timestamp((strptime(states('sensor.regenerated_on')[4:15], '%d %b %H:%M').replace(year=now().year)))) | int  %}
+        {%- set time = (states('number.clack_capacity_in_days') | int * 86400) - (as_timestamp(now()) - as_timestamp((strptime(states('sensor.clack_regenerated_on')[4:15], '%d %b %H:%M').replace(year=now().year)))) | int  %}
         {%- set hours = ((time % 86400) // 3600) %}
         {%- set hours = '{}h '.format(hours) if hours > 0 else '' %}
         {%- set days = (time // 86400) %}
@@ -66,19 +66,19 @@ template:
 #-----------
 utility_meter:
   waterusage_this_quarter:  
-    source: sensor.water_meter
+    source: sensor.clack_water_meter
     cycle: quarter-hourly
   waterusage_this_hour:
-    source: sensor.water_meter
+    source: sensor.clack_water_meter
     cycle: hourly
   waterusage_today:
-    source: sensor.water_meter
+    source: sensor.clack_water_meter
     cycle: daily 
   waterusage_this_month:
-    source: sensor.water_meter
+    source: sensor.clack_water_meter
     cycle: monthly
   waterusage_this_year:
-    source: sensor.water_meter
+    source: sensor.clack_water_meter
     cycle: yearly 
 
 automation:
@@ -88,20 +88,20 @@ automation:
     trigger:
     - platform: state
       entity_id:
-      - binary_sensor.regeneration_pulse
+      - binary_sensor.clack_regeneration_pulse
       to: 'on'
     - platform: state
-      entity_id: button.test_button_regen_pulse
+      entity_id: button.clack_test_button_regen_pulse
     condition:
     - condition: and
       conditions:
       - condition: state
-        entity_id: input_select.water_softener_status
+        entity_id: input_select.clack_water_softener_status
         state: Idle
     action:
     - service: input_select.select_option
       data:
-        entity_id: input_select.water_softener_status
+        entity_id: input_select.clack_water_softener_status
         option: Backwash
     - service: timer.start
       entity_id: timer.timer_ws_backwash
@@ -120,12 +120,12 @@ automation:
     - condition: and
       conditions:
       - condition: state
-        entity_id: input_select.water_softener_status
+        entity_id: input_select.clack_water_softener_status
         state: Backwash
     action:
     - service: input_select.select_option
       data:
-        entity_id: input_select.water_softener_status
+        entity_id: input_select.clack_water_softener_status
         option: Brine
     - service: timer.start
       entity_id: timer.timer_ws_brine
@@ -142,12 +142,12 @@ automation:
     - condition: and
       conditions:
       - condition: state
-        entity_id: input_select.water_softener_status
+        entity_id: input_select.clack_water_softener_status
         state: Brine
     action:
     - service: input_select.select_option
       data:
-        entity_id: input_select.water_softener_status
+        entity_id: input_select.clack_water_softener_status
         option: Rinse
     - service: timer.start
       entity_id: timer.timer_ws_rinse
@@ -164,12 +164,12 @@ automation:
     - condition: and
       conditions:
       - condition: state
-        entity_id: input_select.water_softener_status
+        entity_id: input_select.clack_water_softener_status
         state: Rinse
     action:
     - service: input_select.select_option
       data:
-        entity_id: input_select.water_softener_status
+        entity_id: input_select.clack_water_softener_status
         option: Fill
     - service: timer.start
       entity_id: timer.timer_ws_fill
@@ -186,19 +186,19 @@ automation:
     - condition: and
       conditions:
       - condition: state
-        entity_id: input_select.water_softener_status
+        entity_id: input_select.clack_water_softener_status
         state: Fill
     action:
     - service: input_select.select_option
       data:
-        entity_id: input_select.water_softener_status
+        entity_id: input_select.clack_water_softener_status
         option: Idle
     - service: esphome.clack_meterstand_clack
       data:
         meter_value: 0
     - service: input_number.set_value
       data_template:
-        entity_id: input_number.water_softener_meter_liters
+        entity_id: input_number.clack_water_softener_meter_liters
         value: 0
     initial_state: true
   #------------------------------------------------------------------
@@ -210,7 +210,7 @@ automation:
     description: ''
     trigger:
     - platform: state
-      entity_id: sensor.fill_salt
+      entity_id: sensor.clack_fill_salt
       to: "yes"
     condition:
     - condition: time
@@ -238,7 +238,7 @@ automation:
     trigger:
     - platform: numeric_state
       entity_id:
-      - sensor.watermeter
+      - sensor.clack_watermeter
       above: 3000
     condition:
     - condition: time

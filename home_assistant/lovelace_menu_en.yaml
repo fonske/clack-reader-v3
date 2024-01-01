@@ -8,18 +8,18 @@ views:
           - cards:
               - type: entities
                 entities:
-                  - entity: sensor.water_meter
+                  - entity: sensor.clack_water_meter
                     type: custom:multiple-entity-row
                     icon: mdi:cup-water
                     name: Water softener
                     secondary_info:
-                      entity: input_select.water_softener_status
+                      entity: input_select.clack_water_softener_status
                       name: 'cycle: '
                     state_header: used
                     entities:
                       - entity: sensor.time_to_regeneration
                         name: time left
-                      - entity: sensor.water_softener_m3_left
+                      - entity: sensor.clack_water_softener_m3_left
                         name: m3 left
                 style: |
                   ha-card {
@@ -32,7 +32,7 @@ views:
                   }          
                 title: Water softener
               - entities:
-                  - entity: sensor.water_softener_ltr_left
+                  - entity: sensor.clack_water_softener_ltr_left
                     max: 3200
                     min: 0
                     name: L used
@@ -118,23 +118,41 @@ views:
                   name: Total time left (4 cycles)
       - type: entities
         entities:
-          - entity: sensor.water_meter
-          - entity: sensor.water_softener_ltr_left
-          - entity: sensor.water_softener_m3_left
-          - entity: sensor.salt_level_distance
+          - entity: sensor.clack_water_meter
+            name: Water meter
+          - entity: sensor.clack_water_softener_ltr_left
+            name: Water softener liters left
+          - entity: sensor.clack_water_softener_m3_left
+            name: Water softener m3 left
+          - entity: sensor.clack_salt_level_distance
             name: Distance
-          - entity: sensor.salt_level_height
+          - entity: sensor.clack_salt_level_height
             name: Height
-          - entity: sensor.salt_level_percent
+          - entity: sensor.clack_salt_level_percent
             name: Procent
-          - entity: sensor.fill_salt
-          - entity: sensor.regenerated_on
-          - entity: binary_sensor.watermeter_pulse
-          - entity: binary_sensor.regeneration_pulse
-          - entity: button.test_button_use_pulse
-          - entity: button.test_button_regen_pulse
+          - entity: sensor.clack_fill_salt
+            name: Fill salt
+          - entity: sensor.clack_regenerated_on
+            name: Regenerated on
+          - entity: binary_sensor.clack_watermeter_pulse
+            name: Watermeter pulse
+          - entity: binary_sensor.clack_regeneration_pulse
+            name: Regeneration pulse
+          - entity: button.clack_test_button_use_pulse
+            name: Test button use pulse
+          - entity: button.clack_test_button_regen_pulse
+            name: Test button regeneration pulse
+          - entity: sensor.clack_power
+            name: Power
+          - entity: sensor.clack_voltage
+            name: Voltage
+          - entity: sensor.clack_current
+            name: Current
+          - entity: switch.clack_chlorinator
+            name: Chlorinator
+
       - elements:
-          - entity: sensor.salt_level_for_dashboard
+          - entity: sensor.clack_salt_level_for_dashboard
             image: local/images/softener.png
             state_image:
               '0': local/images/softener0.png
@@ -156,15 +174,15 @@ views:
         type: picture-elements
       - type: entities
         entities:
-          - entity: sensor.waterusage_this_quarter
+          - entity: sensor.clack_waterusage_this_quarter
             name: Waterusage last quarter
-          - entity: sensor.waterusage_this_hour
+          - entity: sensor.clack_waterusage_this_hour
             name: Waterusage last hour
-          - entity: sensor.waterusage_today
+          - entity: sensor.clack_waterusage_today
             name: Waterusage today
-          - entity: sensor.waterusage_this_month
+          - entity: sensor.clack_waterusage_this_month
             name: Waterusage this month
-          - entity: sensor.waterusage_this_year
+          - entity: sensor.clack_waterusage_this_year
             name: Waterusage this year
       - type: custom:apexcharts-card
         graph_span: 7d
@@ -209,7 +227,7 @@ views:
                 - 90
                 - 100
         series:
-          - entity: sensor.waterusage_today
+          - entity: sensor.clack_waterusage_today
             name: Usage
             type: column
             float_precision: 2
@@ -218,13 +236,26 @@ views:
               duration: 23h59m59s
       - type: entities
         entities:
-          - entity: number.min_salt_distance
-          - entity: number.max_salt_distance
-          - entity: number.fill_salt_distance
-          - entity: number.capacity_in_days
-          - entity: number.capacity_in_liters
-          - entity: sensor.versie
-          - entity: sensor.waterontharder_ip
-          - entity: sensor.wifi_signal
-          - entity: sensor.wifi_signal_db
+          - entity: number.clack_min_salt_distance
+            name: Min. salt distance
+          - entity: number.clack_max_salt_distance
+            name: Max. salt distance
+          - entity: number.clack_fill_salt_distance
+            name: Fill salt distance
+          - entity: number.clack_capacity_in_days
+            name: Capacity in days
+          - entity: number.clack_capacity_in_liters
+            name: Capacity in liters
+          - entity: sensor.clack_versie
+            name: Version
+          - entity: sensor.clack_waterontharder_ip
+            name: IP adress
+          - entity: sensor.clack_wifi_signal
+            name: Wifi signal
+          - entity: sensor.clack_wifi_signal_db
+            name: Wifi signal dB
+          - entity: light.clack_led
+            name: Led 
+          - entity: sensor.clack_uptime
+            name: Uptime
         title: Settings

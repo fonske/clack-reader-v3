@@ -37,7 +37,7 @@ substitutions:
 text_sensor:
   # Expose last regeneration information as sensor / already in English
   - platform: template
-    name: ${clack_regeneration_last}
+    name: ${name} ${clack_regeneration_last}
     id: clack_regeneration_last
     icon: mdi:clock-start
     update_interval: never
