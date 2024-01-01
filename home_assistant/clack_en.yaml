@@ -65,19 +65,19 @@ template:
 #UTILITY METER
 #-----------
 utility_meter:
-  waterusage_this_quarter:  
+  clack_waterusage_this_quarter:  
     source: sensor.clack_water_meter
     cycle: quarter-hourly
-  waterusage_this_hour:
+  clack_waterusage_this_hour:
     source: sensor.clack_water_meter
     cycle: hourly
-  waterusage_today:
+  clack_waterusage_today:
     source: sensor.clack_water_meter
     cycle: daily 
-  waterusage_this_month:
+  clack_waterusage_this_month:
     source: sensor.clack_water_meter
     cycle: monthly
-  waterusage_this_year:
+  clack_waterusage_this_year:
     source: sensor.clack_water_meter
     cycle: yearly 
 
