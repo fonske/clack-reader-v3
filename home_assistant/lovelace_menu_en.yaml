@@ -246,10 +246,10 @@ views:
             name: Capacity in days
           - entity: number.clack_capacity_in_liters
             name: Capacity in liters
-          - entity: sensor.clack_versie
+          - entity: sensor.clack_version
             name: Version
-          - entity: sensor.clack_waterontharder_ip
-            name: IP adress
+          - entity: sensor.clack_water_softener_ip
+            name: IP address
           - entity: sensor.clack_wifi_signal
             name: Wifi signal
           - entity: sensor.clack_wifi_signal_db
