@@ -76,6 +76,7 @@ wifi:
     ap_timeout: 15s
 
 globals:
+# Define a global variable for the water usage
   - id: totalWaterUsage
     type: float
     restore_value: yes
@@ -372,6 +373,7 @@ select:
       - ${clack_chlorinator}
     initial_option: ${clack_off}
     optimistic: true
+    restore_value: true
 
 ##
 # Text sensors with general information.
