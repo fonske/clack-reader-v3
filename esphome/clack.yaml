@@ -1,5 +1,5 @@
 substitutions:
-  # General substitutions"
+  # General substitutions:
   name: clack
   device_description: "Esphome component for Clack WS1 softener with TOF sensor saltlevel detection"
   timezone: "Europe/Amsterdam"
@@ -19,7 +19,7 @@ packages:
     ref: main
     refresh: 0s
     files: [ 
-      esphome/.clack-base.yaml.yaml, 
+      esphome/.clack-base.yaml, 
       esphome/.clack-optional.yaml,
       esphome/.clack-labels-en.yaml, 
       esphome/board-esp32-wemos-s3.yaml
@@ -35,6 +35,8 @@ time:
   - platform: sntp
     id: clack_sntp_time
     timezone: ${timezone}
+    # Enable this with your own NTP server if your device is on a no internet IOT lan. 
+    #servers: 192.168.X.X
 
 wifi:
   ssid: !secret wifi_ssid
@@ -45,6 +47,3 @@ wifi:
     ssid: "${name}"
     password: "configesp"
     ap_timeout: 15s
-
-
-
