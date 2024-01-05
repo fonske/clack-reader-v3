@@ -1,0 +1,480 @@
+# Basics
+esphome:
+  name: ${name}
+  on_boot:
+    priority: 200
+    then:
+      - script.execute: on_boot
+
+# OTA:
+ota:
+
+# Enable Home Assistant API
+api:
+  reboot_timeout: 0s
+  services:
+    - service: meterstand_clack
+      variables:
+        meter_value: float
+      then:
+        - globals.set:
+            id: totalWaterUsage
+            value: !lambda "return ( meter_value ) ;"
+        - sensor.template.publish:
+            id: clack_watermeter
+            state: !lambda |-
+              return id(totalWaterUsage);
+        - sensor.template.publish:
+            id: clack_m3_left
+            state: !lambda |-
+              return float(id(clack_capacity_liters).state - id(clack_watermeter).state) * 0.001;
+        - sensor.template.publish:
+            id: clack_l_left
+            state: !lambda |-
+              return int(id(clack_capacity_liters).state - id(clack_watermeter).state);
+
+globals:
+  - id: totalWaterUsage
+    type: float
+    restore_value: yes
+    initial_value: '00'
+
+# Define a global variable for the chlorinator delay duration in minutes
+  - id: duration
+    type: int
+    restore_value: yes
+    initial_value: '15'
+
+# Define a global variable for last regeneration time
+  - id: regeneration_last
+    type: std::string
+    restore_value: yes
+    initial_value: '"Never"'
+
+script:
+###  On reboot or powerloss of the esp, set the time left, last regeneration time, and capacity counters
+  - id: on_boot
+    then:
+      - sensor.template.publish:
+          id: clack_m3_left
+          state: !lambda |-
+            return float(id(clack_capacity_liters).state - id(clack_watermeter).state) * 0.001;
+      - sensor.template.publish:
+          id: clack_l_left
+          state: !lambda |-
+            return int(id(clack_capacity_liters).state - id(clack_watermeter).state);
+      - text_sensor.template.publish:
+            id: clack_regeneration_last
+            state: !lambda |-
+              return id(regeneration_last);
+      - light.turn_on:
+          id: led
+          effect: slow_pulse
+          red: 100%
+          green: 60%
+          blue: 0%
+      - wait_until:
+          condition:
+            wifi.connected:
+      - light.turn_on:
+          id: led
+          effect: pulse
+          red: 0%
+          green: 100%
+          blue: 0%
+      - wait_until:
+          condition:
+            api.connected:
+      - light.turn_on:
+          id: led
+          effect: none
+          red: 0%
+          green: 100%
+          blue: 0%
+      - delay: 5s
+      - light.turn_off:
+          id: led
+
+###  Define a script that turns on the chlorinator relay, waits for the duration, and turns it off
+  - id: chlorinator_start
+    mode: restart
+    then:
+      - switch.turn_on: chlorinator_relay
+      # Use a lambda expression to return the delay in milliseconds
+      - delay: !lambda "return id(duration) * 60 * 1000;"
+      - switch.turn_off: chlorinator_relay
+
+light:
+#G47=RGB WS2812C-2020
+  - platform: esp32_rmt_led_strip
+    name: ${name} Led
+    id: led
+    rgb_order: GRB
+    pin: 47
+    num_leds: 4
+    # RMT 0 channels will be occupied by IR
+    rmt_channel: 1
+    chipset: ws2812
+    restore_mode: ALWAYS_OFF
+
+#-----------
+#SENSORS
+#-----------
+sensor:
+  ##
+  # Power meter
+  - platform: ina219
+    address: 0x40
+    shunt_resistance: 0.1 ohm
+    current:
+      name: ${name} Current
+    power:
+      name: ${name} Power
+      filters:
+        - delta: 0.05
+    bus_voltage:
+      name: ${name} Voltage
+    shunt_voltage:
+      name: ${name} Shunt Voltage
+    max_voltage: 32.0V
+    max_current: 3.2A
+    update_interval: 5s
+
+  - platform: vl53l0x
+    id: distance_cm
+    address: 0x29
+    update_interval: ${salt_level_update_interval}
+    long_range: false
+    internal: false
+    filters:
+      - filter_out: nan
+      - lambda: return x*100;
+      ### comment with # if you want a direct reading
+      - median:
+          window_size: 15
+          send_every: 7
+          send_first_at: 1
+      - delta: 0.5
+      ###
+      - clamp:
+          min_value: 0.0
+          max_value: 160.0
+    on_value:
+      then:
+        - sensor.template.publish:
+            id: clack_distance
+            state: !lambda |-
+              return id(distance_cm).state;
+
+  ##
+  # ultrasonic distance sensor.
+  - platform: template
+    name: ${name} ${clack_distance}
+    id:  clack_distance
+    unit_of_measurement: cm
+    accuracy_decimals: 1
+    icon: "mdi:arrow-expand-vertical"
+    device_class: distance
+    state_class: measurement
+    on_value:
+      then:
+        - sensor.template.publish:
+            id: clack_procent
+            state: !lambda |-
+              const float max_distance = id(clack_saltlevel_height_max).state; // heigt in cm to lowest level
+              const float min_distance = id(clack_saltlevel_height_min).state; // height in cm to highest level
+              return int((1-((id(clack_distance).state - min_distance)/max_distance))*100);
+        - sensor.template.publish:
+            id: clack_height
+            state: !lambda |-
+              const float max_distance = id(clack_saltlevel_height_max).state;  // height in cm to lowest level
+              return max_distance-id(clack_distance).state;
+        - text_sensor.template.publish:
+            id: clack_fill_salt
+            state: !lambda |-
+              if (id(clack_height).state < id(clack_saltlevel_height_fill).state) {
+                return {"${clack_yes}"};
+              } else {
+                return {"${clack_no}"};
+              }
+
+  ##
+  # ultrasonic distance sensor calculate tank_percentage
+  - platform: template
+    id: clack_procent
+    name: ${name} ${clack_procent}
+    unit_of_measurement: "%"
+    accuracy_decimals: 0
+    icon: "mdi:percent-box-outline"
+    update_interval: ${tank_percentage_update_interval}
+    state_class: measurement
+    filters:
+    - lambda: |-
+        if (x >= 100) return 100.0;
+        else if (x <= 0.0) return 0.0;
+        else return x;
+  ##
+  # Saltlevel animation picture on dashboard
+  - platform: copy
+    source_id: clack_procent
+    id: clack_salt_level
+    name: ${name} ${clack_animation}
+    filters:
+    - lambda: |-
+        if (x >= 80) return 100;
+        else if (x >= 65 && x <= 79) return 80;
+        else if (x >= 40 && x <= 64) return 60;
+        else if (x >= 20 && x <= 39) return 40;
+        else if (x >= 10 && x <= 19) return 20;
+        else if (x >= 5 && x <= 9) return 10;
+        else if (x <= 4) return 0;
+        else return x;
+
+  ##
+  # ultrasonic distance sensor calculate salt level from bottom
+  - platform: template
+    id: clack_height
+    name: ${name} ${clack_height}
+    unit_of_measurement: cm
+    accuracy_decimals: 1
+    icon: "mdi:hydraulic-oil-level"
+    update_interval: ${clack_height_update_interval}
+    device_class: distance
+    state_class: measurement
+    filters:
+    - lambda: |-
+        if (x >= 100) return 100.0;
+        else if (x <= 0.0) return 0.0;
+        else return x;
+
+#------
+# CLACK
+#------
+  ##
+  #  Watermeter
+  - platform: template
+    id: clack_watermeter
+    name: ${name} ${clack_watermeter_total}
+    icon: mdi:water
+    update_interval: ${watermeter_update_interval}
+    unit_of_measurement: L
+    device_class: water
+    state_class: total_increasing
+    accuracy_decimals: 1
+    lambda: |-
+      return id(totalWaterUsage);
+
+  - platform: template
+    id: clack_m3_left
+    name: ${name} ${clack_m3_left}
+    unit_of_measurement: m³
+    device_class: water
+    state_class: total_increasing
+    accuracy_decimals: 2
+    update_interval: ${watermeter_update_interval}
+
+  - platform: template
+    id: clack_l_left
+    name: ${name} ${clack_l_left}
+    unit_of_measurement: L
+    device_class: water
+    state_class: total_increasing
+    accuracy_decimals: 0
+    update_interval: ${watermeter_update_interval}
+
+switch:
+  ##
+  # Chlorinator Relay
+  - platform: gpio
+    pin:
+      number: 10
+      inverted: false
+    name: ${name} ${clack_chlorinator}
+    id: chlorinator_relay
+    icon: mdi:alarm-bell
+
+select:
+  - id: clack_select_chl_or_dpsw
+    name: ${name} ${clack_select_chl_or_dpsw}
+    platform: template
+    options:
+      - ${clack_off}
+      - ${clack_chlorinator}
+    initial_option: ${clack_off}
+    optimistic: true
+
+##
+# Text sensors with general information.
+text_sensor:
+  ##
+  # Expose ESPHome version as sensor.
+  - platform: version
+    id: clack_version
+    name: ${name} ${clack_version}
+    hide_timestamp: true
+
+  ##
+  # Expose WiFi information as sensors.
+  - platform: wifi_info
+    ip_address:
+      name: ${name} ${clack_ip}
+      icon: mdi:ip-network
+
+  ##
+  # Textsensor "Fill Salt" yes or no.
+  - platform: template
+    name: ${name} ${clack_fill_salt}
+    id: clack_fill_salt
+    icon: mdi:basket-fill
+    update_interval: never
+
+##
+# imput numbers as sliders for setting the dimensions of the tank and level alarm.
+number:
+  ##
+  # Set minimum distance (from bottom sensor / above plastic cap)
+  - platform: template
+    id: clack_saltlevel_height_min
+    name: ${name} ${clack_saltlevel_height_min}
+    icon: mdi:toggle-switch-variant
+    optimistic: true
+    mode: slider
+    step: 0.5
+    entity_category: config
+    min_value: 0
+    max_value: 10
+    initial_value: 0
+    restore_value: yes
+    unit_of_measurement: cm
+    on_value:
+      then:
+        - sensor.template.publish:
+            id: clack_procent
+            state: !lambda |-
+              const float max_distance = id(clack_saltlevel_height_max).state; // heigt in cm to lowest level
+              const float min_distance = id(clack_saltlevel_height_min).state; // height in cm to highest level
+              return int((1-((id(clack_distance).state - min_distance)/max_distance))*100);
+        - sensor.template.publish:
+            id: clack_height
+            state: !lambda |-
+              const float max_distance = id(clack_saltlevel_height_max).state;  // height in cm to lowest level
+              return max_distance-id(clack_distance).state;
+
+  ##
+  # Set maximum distance (from bottom sensor / underneath plastic cap) to water level (to measure in pipe?)
+  - platform: template
+    id: clack_saltlevel_height_max
+    name: ${name} ${clack_saltlevel_height_max}
+    icon: mdi:toggle-switch-variant-off
+    optimistic: true
+    mode: slider
+    step: 0.5
+    entity_category: config
+    min_value: 0
+    max_value: 100
+    initial_value: 30
+    restore_value: yes
+    unit_of_measurement: cm
+    on_value:
+      then:
+        - sensor.template.publish:
+            id: clack_procent
+            state: !lambda |-
+              const float max_distance = id(clack_saltlevel_height_max).state; // heigt in cm to lowest level
+              const float min_distance = id(clack_saltlevel_height_min).state; // height in cm to highest level
+              return int((1-((id(clack_distance).state - min_distance)/max_distance))*100);
+        - sensor.template.publish:
+            id: clack_height
+            state: !lambda |-
+              const float max_distance = id(clack_saltlevel_height_max).state;  // height in cm to lowest level
+              return max_distance-id(clack_distance).state;
+  ##
+  # Set alarm level
+  - platform: template
+    id: clack_saltlevel_height_fill
+    name: ${name} ${clack_saltlevel_height_fill}
+    icon: mdi:hydraulic-oil-temperature
+    optimistic: true
+    mode: slider
+    step: 0.1
+    entity_category: config
+    min_value: 0
+    max_value: 10
+    initial_value: 1.5
+    restore_value: yes
+    unit_of_measurement: cm
+    update_interval: 600s
+    on_value:
+      then:
+        - text_sensor.template.publish:
+            id: clack_fill_salt
+            state: !lambda |-
+              if (id(clack_height).state < id(clack_saltlevel_height_fill).state) {
+                return {"${clack_yes}"};
+              } else {
+                return {"${clack_no}"};
+              }
+  ##
+  # Set capacity liters
+  - platform: template
+    id: clack_capacity_liters
+    name: ${name} ${clack_capacity_liters}
+    icon: mdi:water-opacity
+    optimistic: true
+    mode: slider
+    step: 50
+    entity_category: config
+    min_value: 0
+    max_value: 7200
+    initial_value: 3200
+    restore_value: yes
+    unit_of_measurement: L
+    on_value:
+      then:
+        - sensor.template.publish:
+            id: clack_watermeter
+            state: !lambda |-
+              return id(totalWaterUsage);
+        - sensor.template.publish:
+            id: clack_m3_left
+            state: !lambda |-
+              return float(id(clack_capacity_liters).state - id(clack_watermeter).state) * 0.001;
+        - sensor.template.publish:
+            id: clack_l_left
+            state: !lambda |-
+              return int(id(clack_capacity_liters).state - id(clack_watermeter).state);
+  ##
+  # Set capacity days
+  - platform: template
+    id: clack_capacity_days
+    name: ${name} ${clack_capacity_days}
+    icon: mdi:calendar-clock
+    optimistic: true
+    mode: slider
+    step: 1
+    entity_category: config
+    min_value: 0
+    max_value: 21
+    initial_value: 10
+    restore_value: yes
+    unit_of_measurement: ${days}
+  ##
+  # Set chlorinator relay off-delay
+  - platform: template
+    id: clack_chlorinator_delay
+    name: ${name} ${clack_chlorinator_delay}
+    icon: mdi:toggle-switch-variant
+    optimistic: true
+    mode: slider
+    step: 1
+    entity_category: config
+    min_value: 0
+    max_value: 25
+    initial_value: 10
+    restore_value: yes
+    unit_of_measurement: "min"
+    on_value:
+      then:
+        - globals.set:
+            id: duration
+            value: !lambda 'return int(x);'
