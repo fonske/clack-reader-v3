@@ -302,6 +302,7 @@ select:
       - ${clack_chlorinator}
     initial_option: ${clack_off}
     optimistic: true
+    restore_value: true
 
 ##
 # Text sensors with general information.
