@@ -6,6 +6,8 @@
 
 
 ## Installation
+A dutch installation is written by [ViezeVis](https://github.com/ViezeVisNL). Visit his [webpage](https://bashoogers.nl/2024/01/11/clack-reader-v3-instructie-installatie-home-assistant/) for the document.
+
 For installation of this module you need to open the clack cover, this can be achieved by gently pulling on the 2 clips on the side. 
 
 Once open, there is just enough space on the right side inside the Clack for the Clack reader PCB, but the chlorinator PCB is designed to be on the bottom
