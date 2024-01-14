@@ -236,6 +236,10 @@ views:
               duration: 23h59m59s
       - type: entities
         entities:
+          - entity: select.clack_function_mode
+            name: Function mode
+          - entity: number.clack_chlorinator_active_time
+            name: Chlorinator active time
           - entity: number.clack_min_salt_distance
             name: Min. salt distance
           - entity: number.clack_max_salt_distance
