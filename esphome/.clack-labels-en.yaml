@@ -26,6 +26,7 @@ substitutions:
   clack_select_salt_measurement: Salt measurement
   clack_measure_always: Always
   clack_measure_during_brine: Only during brine
+  clack_salt_measurent_in_brine_delay: Delay measure salt brine
   hours: hours
   days: days
   clack_yes: "yes"
