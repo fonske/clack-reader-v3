@@ -23,6 +23,9 @@ substitutions:
   clack_wifi_signal_db_percent: WiFi Signaal
   clack_uptime: Uptime
   clack_chlorinator: Chlorinator
+  clack_select_salt_measurement: Zout niveau meting
+  clack_measure_always: Altijd
+  clack_measure_during_brine: Alleen na bezouting
   hours: uur
   days: dagen
   clack_yes: ja
