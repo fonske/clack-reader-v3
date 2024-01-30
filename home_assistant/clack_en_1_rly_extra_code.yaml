@@ -1,0 +1,40 @@
+#-----------
+# EXTRA CODE FOR CLACK VERSION WITH ONLY 1 RELAY TERMINAL FOR (10?) LITER PULSE
+# USE THIS TIMER AND AUTOMATION ONLY ON A CLACK WITHOUT RLY2 FOR REPLACEMENT OF THE REGENERATION PULSE!!!
+# IT IS BASED ON THE POWER CONSUMPTION OF THE CAM MOTOR RUNNING. > 1.5 WATT POWER CONSUMPTION = REGENERATION
+#-----------
+timer:
+  timer_alt_regeneration_pulse:
+    name: Delay
+
+automation:
+#-----------
+#USE THIS AUTOMATION ONLY ON A CLACK WITHOUT RLY2 FOR REGENERATION PULSE!!!
+#-----------
+  - id: set_reg_pulse_by_cammotor
+    alias: Regenerationpulse based on cammotor power detection
+    description: Regenerationpulse based on cammotor power detection
+    trigger:
+    - platform: numeric_state
+      entity_id:
+      - sensor.clack_power
+      above: 1.5
+    condition:
+    - condition: and
+      conditions: []
+    - condition: state
+      entity_id: timer.timer_alt_regeneration_pulse
+      state: idle
+    action:
+    - service: button.press
+      metadata: {}
+      data: {}
+      target:
+        entity_id: button.clack_test_button_regen_pulse
+    - service: timer.start
+      data:
+        duration: 0:59:00
+      target:
+        entity_id: timer.timer_alt_regeneration_pulse
+    initial_state: true
+    mode: single
