@@ -7,6 +7,7 @@
 
 ## Installation
 A dutch installation manual is written by [ViezeVis](https://github.com/ViezeVisNL). Visit his [webpage](https://bashoogers.nl/2024/01/11/clack-reader-v3-instructie-installatie-home-assistant/) for the document.
+The englisch version, you can find [here](https://bashoogers.nl/2024/01/22/clack-reader-v3-en-installation-manual-home-assistant/)
 
 For installation of this module you need to open the clack cover, this can be achieved by gently pulling on the 2 clips on the side. 
 
