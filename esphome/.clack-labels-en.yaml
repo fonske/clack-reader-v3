@@ -37,6 +37,7 @@ substitutions:
   clack_current: Current
   clack_voltage: Voltage
   clack_shunt_voltage: Voltage
+  clack_restart: ESP Restart
 
 text_sensor:
   # Expose last regeneration information as sensor / already in English

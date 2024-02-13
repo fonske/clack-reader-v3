@@ -36,6 +36,7 @@ substitutions:
   clack_current: Stroom
   clack_voltage: Spanning
   clack_shunt_voltage: Shunt spanning
+  clack_restart: ESP Herstart
 
 text_sensor:
   # Expose last regeneration information as sensor

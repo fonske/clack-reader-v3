@@ -117,6 +117,12 @@ light:
     chipset: ws2812
     restore_mode: ALWAYS_OFF
 
+###  ESP restart button
+button:
+  - platform: restart
+    id: restart_button
+    name: ${name} ${clack_restart}
+
 #-----------
 #SENSORS
 #-----------
