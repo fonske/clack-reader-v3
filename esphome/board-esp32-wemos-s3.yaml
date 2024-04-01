@@ -26,8 +26,6 @@ esphome:
       "-DBOARD_HAS_PSRAM",
       "-DARDUINO_LOLIN_S3_MINI",
       "-DARDUINO_USB_MODE=1"]
-#    board_build.extra_flags:
-#      - "-DARDUINO_USB_CDC_ON_BOOT=0"  # Override, defaults to '-DARDUINO_USB_CDC_ON_BOOT=1'
 
 # Enable/Disable logging
 logger:
@@ -65,7 +63,7 @@ binary_sensor:
         input: true
         pullup: true
     id: clack_watermeter_pulse
-    name: ${name} ${clack_watermeter_pulse}
+    name: ${clack_watermeter_pulse}
 #    icon: mdi:toggle-switch-variant
     filters:
       - delayed_on_off: 50ms
@@ -84,6 +82,26 @@ binary_sensor:
             state: !lambda |-
               return int(id(clack_capacity_liters).state - id(clack_watermeter).state);
 
+## watermeter pulse / flowmeter. 17 pulses = 1 ltr
+  - platform: gpio
+    pin:
+      number: 18 # wemos s3 mini
+      inverted: true
+      mode:
+        input: true
+        pullup: true
+    id: clack_watermeter_pulse_flowmtr
+    name: watermeter_pulse_flowmtr
+#    icon: mdi:toggle-switch-variant
+    filters:
+      - delayed_on_off: 50ms
+    on_press:
+      then:
+        - sensor.template.publish:
+            id: clack_watermeter_pulses
+            state: !lambda |-
+              return id(totalWaterUsagePulse) += 1/float(${pulse_per_liters});
+
   ## regeneration pulse / relay 2
   - platform: gpio
     pin:
@@ -93,7 +111,7 @@ binary_sensor:
         input: true
         pullup: true
     id: clack_regeneration_pulse
-    name: ${name} ${clack_regeneration_pulse}
+    name: ${clack_regeneration_pulse}
 #    icon: mdi:toggle-switch-variant
     filters:
       - delayed_on_off: 800ms
@@ -131,7 +149,7 @@ binary_sensor:
 button:
 ## temporary test button for testing water meter pulse
   - id: clack_use_test_button
-    name: ${name} Test button use pulse
+    name: Test button use pulse
     platform: template
     on_press:
       then:
@@ -150,14 +168,17 @@ button:
         - lambda: |-
             ESP_LOGI("UseTest", "Use button pressed");
 
-## temporary test button for testing regeneration pulse
+# ## temporary test button for testing regeneration pulse
   - id: clack_reg_test_button
-    name: ${name} Test button regen pulse
+    name: Test button regen pulse
     platform: template
     on_press:
       then:
         - globals.set:
             id: totalWaterUsage
+            value: '00'
+        - globals.set:
+            id: totalWaterUsagePulse
             value: '00'
         - text_sensor.template.publish:
             id: clack_regeneration_last
@@ -172,6 +193,10 @@ button:
             state: !lambda |-
               return id(totalWaterUsage);
         - sensor.template.publish:
+            id: clack_watermeter_pulses
+            state: !lambda |-
+              return id(totalWaterUsage);
+        - sensor.template.publish:
             id: clack_m3_left
             state: !lambda |-
               return float(id(clack_capacity_liters).state - id(clack_watermeter).state) * 0.001;
@@ -183,6 +208,6 @@ button:
             ESP_LOGI("RegTest", "Regeneration button pressed");
         - if:
             condition:
-            - lambda: 'return id(clack_select_chl_or_dpsw).state == "Chlorinator";'
+              - lambda: 'return id(clack_select_chl_or_dpsw).state == "Chlorinator";'
             then:
               - script.execute: chlorinator_start
