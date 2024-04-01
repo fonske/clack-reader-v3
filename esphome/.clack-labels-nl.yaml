@@ -1,6 +1,7 @@
 substitutions:
   clack_select_chl_or_dpsw: Functie mode
   clack_distance: Zoutniveau afstand
+  clack_distance_tof: Zoutniveau afstand TOF
   clack_procent: Zoutniveau procent
   clack_animation: Zoutniveau voor dashboard
   clack_height: Zoutniveau hoogte
@@ -37,11 +38,12 @@ substitutions:
   clack_voltage: Spanning
   clack_shunt_voltage: Shunt spanning
   clack_restart: ESP Herstart
+  clack_regen: clack regen
 
 text_sensor:
   # Expose last regeneration information as sensor
   - platform: template
-    name: ${name} ${clack_regeneration_last}
+    name: ${clack_regeneration_last}
     id: clack_regeneration_last
     icon: mdi:clock-start
     update_interval: never
