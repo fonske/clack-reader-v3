@@ -1,10 +1,16 @@
 # Basics
 esphome:
   name: ${name}
+  friendly_name: ${friendly_name}
   on_boot:
     priority: 200
     then:
       - script.execute: on_boot
+  includes:
+    - tof_vl53l1x.h  #ToF4M M5stack
+  libraries:
+    - "Wire"
+    - "pololu/VL53L1X"
 
 # OTA:
 ota:
@@ -32,9 +38,22 @@ api:
             id: clack_l_left
             state: !lambda |-
               return int(id(clack_capacity_liters).state - id(clack_watermeter).state);
+    - service: set_zoutspoeling_almost_finished
+      variables:
+        state: bool
+      then:
+        - lambda: |-
+            id(zoutspoeling_almost_finished) = state;
+            ESP_LOGD("custom", "Zoutspoeling almost finished flag set to: %s", state ? "true" : "false");
 
 globals:
   - id: totalWaterUsage
+    type: float
+    restore_value: yes
+    initial_value: '00'
+
+### experimental reading of flowmeter
+  - id: totalWaterUsagePulse
     type: float
     restore_value: yes
     initial_value: '00'
@@ -50,6 +69,17 @@ globals:
     type: std::string
     restore_value: yes
     initial_value: '"Never"'
+    
+# Define a global variable for zoutspoeling almost finished
+  - id: zoutspoeling_almost_finished
+    type: bool
+    initial_value: 'false'
+
+# Define a global variable to store last value of the distance
+  - id: distance_cm_last_value
+    type: float
+    restore_value: true
+    initial_value: '0.0'
 
 script:
 ###  On reboot or powerloss of the esp, set the time left, last regeneration time, and capacity counters
@@ -94,6 +124,11 @@ script:
       - delay: 5s
       - light.turn_off:
           id: led
+      - lambda: |-
+          if (id(distance_cm_last_value) != 0.0) {
+            id(clack_distance).publish_state(id(distance_cm_last_value));
+          }
+
 
 ###  Define a script that turns on the chlorinator relay, waits for the duration, and turns it off
   - id: chlorinator_start
@@ -104,10 +139,54 @@ script:
       - delay: !lambda "return id(duration) * 60 * 1000;"
       - switch.turn_off: chlorinator_relay
 
+  - id: set_preference_distance_readout
+    then:
+      - if:
+          condition:
+            lambda: |-
+              return strcmp(id(salt_level_measurement).state.c_str(), "Off") == 0;
+          then:
+            - logger.log: "Measure Off"
+      - if:
+          condition:
+            lambda: |-
+              return strcmp(id(salt_level_measurement).state.c_str(), "On") == 0;
+          then:
+            - logger.log: "Measure On"
+            - sensor.template.publish:
+                id: clack_distance
+                state: !lambda |-
+                  return id(distance_cm).state;
+            - globals.set:
+                id: distance_cm_last_value
+                value: !lambda |-
+                  return id(distance_cm).state;
+#            - globals.set:
+#                id: distance_cm_last_value
+#                value: !lambda 'return x;'
+      - if:
+          condition:
+            lambda: |-
+              return strcmp(id(salt_level_measurement).state.c_str(), "During brine") == 0;
+          then:
+            - logger.log: "Measure On during brine"
+            - if:
+                condition:
+                  lambda: return id(zoutspoeling_almost_finished);
+                then:
+                  - sensor.template.publish:
+                      id: clack_distance
+                      state: !lambda |-
+                        return id(distance_cm).state;
+                  - globals.set:
+                      id: distance_cm_last_value
+                      value: !lambda |-
+                        return id(distance_cm).state;
+
 light:
 #G47=RGB WS2812C-2020
   - platform: esp32_rmt_led_strip
-    name: ${name} Led
+    name: Led
     id: led
     rgb_order: GRB
     pin: 47
@@ -121,7 +200,7 @@ light:
 button:
   - platform: restart
     id: restart_button
-    name: ${name} ${clack_restart}
+    name: ${clack_restart}
 
 #-----------
 #SENSORS
@@ -133,49 +212,80 @@ sensor:
     address: 0x40
     shunt_resistance: 0.1 ohm
     current:
-      name: ${name} Current
+      name: Current
     power:
-      name: ${name} Power
+      name: Power
       filters:
         - delta: 0.05
     bus_voltage:
-      name: ${name} Voltage
+      name: Voltage
     shunt_voltage:
-      name: ${name} Shunt Voltage
+      name: Shunt Voltage
     max_voltage: 32.0V
     max_current: 3.2A
     update_interval: 5s
 
-  - platform: vl53l0x
-    id: distance_cm
-    address: 0x29
-    update_interval: ${salt_level_update_interval}
-    long_range: false
-    internal: false
-    filters:
-      - filter_out: nan
-      - lambda: return x*100;
+  ##
+  # VL53L1X TOF
+#  - platform: vl53l1x
+#    id: distance_cm
+#    address: 0x29
+#    update_interval: ${salt_level_update_interval}
+#    long_range: false
+#    internal: false
+#    filters:
+#      - filter_out: nan
+#      - lambda: return x*100;
       ### comment with # if you want a direct reading
-      - median:
-          window_size: 15
-          send_every: 7
-          send_first_at: 1
-      - delta: 0.5
+      #- median:
+      #    window_size: 15
+      #    send_every: 7
+      #    send_first_at: 1
+      #- delta: 0.5
       ###
-      - clamp:
-          min_value: 0.0
-          max_value: 160.0
-    on_value:
-      then:
-        - sensor.template.publish:
-            id: clack_distance
-            state: !lambda |-
-              return id(distance_cm).state;
+#      - clamp:
+#          min_value: 0.0
+#          max_value: 160.0
+#    on_value:
+#      then:
+#        - if:
+#            condition:
+#              lambda: return id(zoutspoeling_almost_finished);
+#            then:
+#              - sensor.template.publish:
+#                  id: clack_distance
+#                  state: !lambda |- 
+#                    return id(distance_cm).state;
+#              - globals.set:
+#                  id: distance_cm_last_value
+#                  value: !lambda 'return x;'
+
+##
+# VL53L1X TOF               
+  - platform: custom
+    lambda: |-
+      auto my_sensor = new MyCustomSensor();
+      App.register_component(my_sensor);
+      return {my_sensor};
+
+    sensors:
+      name: ${clack_distance_tof}
+      accuracy_decimals: 1
+      unit_of_measurement: "cm"
+      id: distance_cm
+      icon: mdi:ruler
+      internal: false
+      filters:
+        - filter_out: nan
+        - lambda: return x/10;
+      on_value:
+        then:
+          - script.execute: set_preference_distance_readout
 
   ##
   # ultrasonic distance sensor.
   - platform: template
-    name: ${name} ${clack_distance}
+    name: ${clack_distance}
     id:  clack_distance
     unit_of_measurement: cm
     accuracy_decimals: 1
@@ -208,7 +318,7 @@ sensor:
   # ultrasonic distance sensor calculate tank_percentage
   - platform: template
     id: clack_procent
-    name: ${name} ${clack_procent}
+    name: ${clack_procent}
     unit_of_measurement: "%"
     accuracy_decimals: 0
     icon: "mdi:percent-box-outline"
@@ -224,7 +334,7 @@ sensor:
   - platform: copy
     source_id: clack_procent
     id: clack_salt_level
-    name: ${name} ${clack_animation}
+    name: ${clack_animation}
     filters:
     - lambda: |-
         if (x >= 80) return 100;
@@ -240,7 +350,7 @@ sensor:
   # ultrasonic distance sensor calculate salt level from bottom
   - platform: template
     id: clack_height
-    name: ${name} ${clack_height}
+    name: ${clack_height}
     unit_of_measurement: cm
     accuracy_decimals: 1
     icon: "mdi:hydraulic-oil-level"
@@ -260,7 +370,7 @@ sensor:
   #  Watermeter
   - platform: template
     id: clack_watermeter
-    name: ${name} ${clack_watermeter_total}
+    name: ${clack_watermeter_total}
     icon: mdi:water
     update_interval: ${watermeter_update_interval}
     unit_of_measurement: L
@@ -270,9 +380,22 @@ sensor:
     lambda: |-
       return id(totalWaterUsage);
 
+  #  experimental Watermeter pulse
+  - platform: template
+    id: clack_watermeter_pulses
+    name: clack_watermeter_total_pulse
+    icon: mdi:water
+    update_interval: ${watermeter_update_interval}
+    unit_of_measurement: L
+    device_class: water
+    state_class: total_increasing
+    accuracy_decimals: 1
+    lambda: |-
+      return id(totalWaterUsagePulse);
+
   - platform: template
     id: clack_m3_left
-    name: ${name} ${clack_m3_left}
+    name: ${clack_m3_left}
     unit_of_measurement: m³
     device_class: water
     state_class: total_increasing
@@ -281,7 +404,7 @@ sensor:
 
   - platform: template
     id: clack_l_left
-    name: ${name} ${clack_l_left}
+    name: ${clack_l_left}
     unit_of_measurement: L
     device_class: water
     state_class: total_increasing
@@ -295,20 +418,39 @@ switch:
     pin:
       number: 10
       inverted: false
-    name: ${name} ${clack_chlorinator}
+    name: ${clack_chlorinator}
     id: chlorinator_relay
     icon: mdi:alarm-bell
+    entity_category: config
 
 select:
   - id: clack_select_chl_or_dpsw
-    name: ${name} ${clack_select_chl_or_dpsw}
+    name: ${clack_select_chl_or_dpsw}
     platform: template
     options:
       - ${clack_off}
+      - ${clack_regen}
       - ${clack_chlorinator}
     initial_option: ${clack_off}
     optimistic: true
     restore_value: true
+    entity_category: config
+    update_interval: never
+
+  - id: salt_level_measurement
+    name: "Salt level measurement"
+    platform: template    
+    options:
+      - "Off"
+      - "On"
+      - "During brine"
+    initial_option: "On"
+    optimistic: true
+    restore_value: true
+    entity_category: config
+    update_interval: never
+#    on_value:
+#      script.execute: set_status_led
 
 ##
 # Text sensors with general information.
@@ -317,20 +459,20 @@ text_sensor:
   # Expose ESPHome version as sensor.
   - platform: version
     id: clack_version
-    name: ${name} ${clack_version}
+    name: ${clack_version}
     hide_timestamp: true
 
   ##
   # Expose WiFi information as sensors.
   - platform: wifi_info
     ip_address:
-      name: ${name} ${clack_ip}
+      name: ${clack_ip}
       icon: mdi:ip-network
 
   ##
   # Textsensor "Fill Salt" yes or no.
   - platform: template
-    name: ${name} ${clack_fill_salt}
+    name: ${clack_fill_salt}
     id: clack_fill_salt
     icon: mdi:basket-fill
     update_interval: never
@@ -342,7 +484,7 @@ number:
   # Set minimum distance (from bottom sensor / above plastic cap)
   - platform: template
     id: clack_saltlevel_height_min
-    name: ${name} ${clack_saltlevel_height_min}
+    name: ${clack_saltlevel_height_min}
     icon: mdi:toggle-switch-variant
     optimistic: true
     mode: slider
@@ -371,7 +513,7 @@ number:
   # Set maximum distance (from bottom sensor / underneath plastic cap) to water level (to measure in pipe?)
   - platform: template
     id: clack_saltlevel_height_max
-    name: ${name} ${clack_saltlevel_height_max}
+    name: ${clack_saltlevel_height_max}
     icon: mdi:toggle-switch-variant-off
     optimistic: true
     mode: slider
@@ -399,7 +541,7 @@ number:
   # Set alarm level
   - platform: template
     id: clack_saltlevel_height_fill
-    name: ${name} ${clack_saltlevel_height_fill}
+    name: ${clack_saltlevel_height_fill}
     icon: mdi:hydraulic-oil-temperature
     optimistic: true
     mode: slider
@@ -425,7 +567,7 @@ number:
   # Set capacity liters
   - platform: template
     id: clack_capacity_liters
-    name: ${name} ${clack_capacity_liters}
+    name: ${clack_capacity_liters}
     icon: mdi:water-opacity
     optimistic: true
     mode: slider
@@ -454,7 +596,7 @@ number:
   # Set capacity days
   - platform: template
     id: clack_capacity_days
-    name: ${name} ${clack_capacity_days}
+    name: ${clack_capacity_days}
     icon: mdi:calendar-clock
     optimistic: true
     mode: slider
@@ -469,7 +611,7 @@ number:
   # Set chlorinator relay off-delay
   - platform: template
     id: clack_chlorinator_delay
-    name: ${name} ${clack_chlorinator_delay}
+    name: ${clack_chlorinator_delay}
     icon: mdi:toggle-switch-variant
     optimistic: true
     mode: slider
