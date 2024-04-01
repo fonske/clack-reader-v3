@@ -1,6 +1,7 @@
 substitutions:
   clack_select_chl_or_dpsw: Function mode
   clack_distance: Salt level distance
+  clack_distance_tof: Salt level distance TOF
   clack_procent: Salt level percent
   clack_animation: Salt level for dashboard
   clack_height: Salt level height
@@ -42,7 +43,7 @@ substitutions:
 text_sensor:
   # Expose last regeneration information as sensor / already in English
   - platform: template
-    name: ${name} ${clack_regeneration_last}
+    name: ${clack_regeneration_last}
     id: clack_regeneration_last
     icon: mdi:clock-start
     update_interval: never
