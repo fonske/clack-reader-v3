@@ -14,6 +14,26 @@ input_select:
       - Fill
       - Idle
     initial: Idle
+
+input_boolean:
+  brine_almost_finished:
+    name: Brine Almost Finished
+    initial: off
+    icon: mdi:timer-sand
+  clack_manual_regen:
+    name: Clack Manual Regen
+    initial: off
+    icon: mdi:water-pump-off
+
+input_number:
+  brine_alert_time:
+    name: Brine Alert Time Before Finish
+    initial: 5
+    min: 1
+    max: 10
+    step: 1
+    unit_of_measurement: 'minutes'
+    icon: mdi:timer-outline
     
 #-----------
 #TIMERS
@@ -23,27 +43,27 @@ timer:
   timer_ws_backwash:
     name: Backwash
 #    duration: '0:00:57'
-    duration: '0:00:10'
+    duration: '0:01:00' #original
 
   timer_ws_brine:
     name: Brine
 #    duration: '0:01:07'
-    duration: '0:00:10'
+    duration: '0:30:00' #original
 
   timer_ws_rinse:
     name: Rinse
 #    duration: '0:01:14'
-    duration: '0:00:10'
+    duration: '0:02:00' #original
 
   timer_ws_fill:
     name: Fill
 #    duration: '0:01:10'
-    duration: '0:00:10'
+    duration: '0:02:00' #original
 
   timer_ws_total:  #sum of all above values
     name: Total
 #    duration: '0:05:44'
-    duration: '0:00:40'
+    duration: '0:35:00' #orginal
 
 #-----------
 #SENSORS
@@ -231,31 +251,81 @@ automation:
         minutes: 30
     initial_state: 'true'
     mode: single
-  ####################################################
-  - id: measure_hardness_notify
-    alias: Measure Hardness
-    description: ''
+################################################
+  - id: brine_almost_finished_alert
+    alias: "Softener - Brine Almost Finished Alert"
+    description: "Sets the input boolean to on when the brine timer is X minutes before it ends, and turns it off when the timer is done."
     trigger:
-    - platform: numeric_state
-      entity_id:
-      - sensor.clack_watermeter
-      above: 3000
-    condition:
-    - condition: time
-      after: 07:30:00
-      before: '22:00:00'
+      - platform: template
+        value_template: >
+          {% set finish_time = state_attr('timer.timer_ws_brine', 'finishes_at') %}
+          {% set remaining_seconds = '00:00:00' if finish_time is none else (as_datetime(finish_time) - now()).total_seconds() %}
+          {% set alert_time_seconds = (states('input_number.brine_alert_time') | int) * 60 %}
+          {{ remaining_seconds > 0 and remaining_seconds <= alert_time_seconds }}
+      - platform: event
+        event_type: timer.finished
+        event_data:
+          entity_id: timer.timer_ws_brine
+    condition: []
     action:
-    - service: notify.mobile_app_iphone_van_a_c_a
-      data:
-        title: Be aware!
-        message: 'Measure hardness softener: used 3000 ltr'
-        data:
-          push:
-            sound:
-              name: default
-              critical: 1
-              volume: 1
-    - delay:
-        minutes: 30
+      - choose:
+          - conditions: 
+              - condition: template
+                value_template: "{{ trigger.platform == 'template' }}"
+            sequence:
+              - service: input_boolean.turn_on
+                target:
+                  entity_id: input_boolean.brine_almost_finished
+              - service: esphome.Clack_set_brine_almost_finished
+                data:
+                  state: true
+          - conditions:
+              - condition: template
+                value_template: "{{ trigger.platform == 'event' }}"
+            sequence:
+              - service: input_boolean.turn_off
+                target:
+                  entity_id: input_boolean.brine_almost_finished
+              - service: esphome.Clack_set_brine_almost_finished
+                data:
+                  state: false
     mode: single
-    initial_state: 'true'
+################################################
+  - id: 'clack_manual_regen_control'
+    alias: "Softener - Clack Manual Regen Control"
+    description: "Automates the Clack chlorinator for manual regen and auto-off."
+    trigger:
+      - platform: state
+        entity_id: input_boolean.clack_manual_regen
+        to: 'on'
+      - platform: state
+        entity_id: input_boolean.clack_manual_regen
+        to: 'off'
+    action:
+      - choose:
+          - conditions:
+              - condition: state
+                entity_id: input_boolean.clack_manual_regen
+                state: 'on'
+            sequence:
+              - service: switch.turn_on
+                target:
+                  entity_id: switch.clack_chlorinator
+              - delay:
+                  minutes: 2
+                  seconds: 5
+              - service: switch.turn_off
+                target:
+                  entity_id: switch.clack_chlorinator
+              - service: input_boolean.turn_off
+                target:
+                  entity_id: input_boolean.clack_manual_regen
+          - conditions:
+              - condition: state
+                entity_id: input_boolean.clack_manual_regen
+                state: 'off'
+            sequence:
+              - service: switch.turn_off
+                target:
+                  entity_id: switch.clack_chlorinator
+    mode: restart
