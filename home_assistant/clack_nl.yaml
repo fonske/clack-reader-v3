@@ -16,7 +16,7 @@ input_select:
 
 input_boolean:
   brine_almost_finished:
-    name: Brine Almost Finished
+    name: Zoutspoeling bijna klaar
     initial: off
     icon: mdi:timer-sand
   clack_manual_regen:
@@ -26,7 +26,7 @@ input_boolean:
     
 input_number:
   brine_alert_time:
-    name: Zoutspoeling Alert Time Before Finish
+    name: Zoutspoeling trigger voor eind
     initial: 5
     min: 1
     max: 10
