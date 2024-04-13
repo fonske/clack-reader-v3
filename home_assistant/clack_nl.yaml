@@ -16,7 +16,7 @@ input_select:
 
 input_boolean:
   brine_almost_finished:
-    name: Zoutspoeling bijna klaar
+    name: "Zoutspoeling bijna klaar"
     initial: off
     icon: mdi:timer-sand
   clack_manual_regen:
@@ -26,7 +26,7 @@ input_boolean:
     
 input_number:
   brine_alert_time:
-    name: Zoutspoeling trigger voor eind
+    name: "Zoutspoeling trigger voor eind"
     initial: 5
     min: 1
     max: 10
@@ -62,7 +62,7 @@ timer:
   timer_ws_total:  #sum of all above values
     name: total
     #duration: '1:07:26'
-    duration: '0:35:00' #orginal
+    duration: '0:12:00' #orginal
 
 #-----------
 #SENSORS
