@@ -124,6 +124,8 @@ views:
             name: Waterontharder ltr over
           - entity: sensor.clack_waterontharder_m3_over
             name: Waterontharder m3 over
+          - entity: sensor.clack_zoutniveau_afstand_tof
+            name: Afstand TOF
           - entity: sensor.clack_zoutniveau_afstand
             name: Afstand
           - entity: sensor.clack_zoutniveau_hoogte
@@ -142,12 +144,16 @@ views:
             name: Test button verbruik pulse
           - entity: button.clack_test_button_regen_pulse
             name: Test button regeneratie pulse
-          - entity: sensor.clack_power
+          - entity: sensor.clack_vermogen
             name: Power
-          - entity: sensor.clack_voltage
+          - entity: sensor.clack_spanning
             name: Spanning
-          - entity: sensor.clack_current
+          - entity: sensor.clack_stroom
             name: Stroom
+          - entity: switch.clack_chlorinator
+            name: Chlorinator / Dp-Sw relais
+          - entity: input_boolean.brine_almost_finished
+          - entity: input_boolean.clack_manual_regen
       - elements:
           - entity: sensor.clack_zoutniveau_voor_dashboard
             image: local/images/softener.png
@@ -169,13 +175,6 @@ views:
         image: local/images/softener.png
         panel: true
         type: picture-elements
-      - type: entities
-        entities:
-          - entity: sensor.clack_waterverbruik_dit_kwartier
-          - entity: sensor.clack_waterverbruik_dit_uur
-          - entity: sensor.clack_waterverbruik_vandaag
-          - entity: sensor.clack_waterverbruik_maand
-          - entity: sensor.clack_waterverbruik_jaar
       - type: custom:apexcharts-card
         graph_span: 7d
         update_interval: 5m
@@ -232,26 +231,31 @@ views:
             name: Functie mode
           - entity: number.clack_chlorinator_aktief_tijd
             name: Chlorinator aktief tijd
+          - entity: select.clack_zoutniveau_meting
+            name: Zout niveau meting
+          - entity: input_number.brine_alert_time
           - entity: number.clack_min_afstand_zout
             name: Min. afstand zout
           - entity: number.clack_max_afstand_zout
-            name: Max. afstand zout          
+            name: Max. afstand zout
           - entity: number.clack_zout_bijvullen_afstand
-            name: Bijvullen afstand zout          
+            name: Bijvullen afstand zout
           - entity: number.clack_capaciteit_in_dagen
-            name: Capaciteit in dagen          
+            name: Capaciteit in dagen
           - entity: number.clack_capaciteit_in_liters
-            name: Capaciteit in liters         
-          - entity: sensor.clack_versie
-            name: Versie          
-          - entity: sensor.clack_waterontharder_ip
-            name: IP adres          
-          - entity: sensor.clack_wifi_signal
-            name: Wifi signaal          
-          - entity: sensor.clack_wifi_signal_db
-            name: Wifi signaal db          
+            name: Capaciteit in liters
+          - entity: button.clack_esp_herstart
           - entity: light.clack_led
-            name: Led 
-          - entity: sensor.clack_uptime
-            name: Uptime
+            name: Led
+          - entity: sensor.clack_versie
+            name: Versie
+          - entity: sensor.clack_waterontharder_ip
+            name: IP adres
         title: Instellingen
+      - type: entities
+        entities:
+          - entity: sensor.clack_waterverbruik_dit_kwartier
+          - entity: sensor.clack_waterverbruik_dit_uur
+          - entity: sensor.clack_waterverbruik_vandaag
+          - entity: sensor.clack_waterverbruik_maand
+          - entity: sensor.clack_waterverbruik_jaar
