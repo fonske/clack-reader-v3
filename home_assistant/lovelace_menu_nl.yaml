@@ -33,7 +33,7 @@ views:
                 title: Water ontharder
               - entities:
                   - entity: sensor.clack_waterontharder_ltr_over
-                    max: 3200
+                    max: 4200
                     min: 0
                     name: Ltr gebruikt
                 height: 8px
@@ -175,6 +175,13 @@ views:
         image: local/images/softener.png
         panel: true
         type: picture-elements
+      - type: entities
+        entities:
+          - entity: sensor.clack_waterverbruik_dit_kwartier
+          - entity: sensor.clack_waterverbruik_dit_uur
+          - entity: sensor.clack_waterverbruik_vandaag
+          - entity: sensor.clack_waterverbruik_maand
+          - entity: sensor.clack_waterverbruik_jaar
       - type: custom:apexcharts-card
         graph_span: 7d
         update_interval: 5m
@@ -252,10 +259,3 @@ views:
           - entity: sensor.clack_waterontharder_ip
             name: IP adres
         title: Instellingen
-      - type: entities
-        entities:
-          - entity: sensor.clack_waterverbruik_dit_kwartier
-          - entity: sensor.clack_waterverbruik_dit_uur
-          - entity: sensor.clack_waterverbruik_vandaag
-          - entity: sensor.clack_waterverbruik_maand
-          - entity: sensor.clack_waterverbruik_jaar
