@@ -6,8 +6,8 @@ esphome:
     priority: 200
     then:
       - script.execute: on_boot
-#  includes:
-#    - tof_vl53l1x.h  #ToF4M M5stack
+  includes:
+    - tof_vl53l1x.h  #ToF4M M5stack
   libraries:
     - "Wire"
     - "pololu/VL53L1X"
