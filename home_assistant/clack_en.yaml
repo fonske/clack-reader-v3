@@ -42,27 +42,27 @@ input_number:
 timer:
   timer_ws_backwash:
     name: Backwash
-#    duration: '0:00:57'
+    #duration: '0:02:10'  
     duration: '0:01:00' #original
 
   timer_ws_brine:
     name: Brine
-#    duration: '0:01:07'
+    #duration: '0:57:16'
     duration: '0:30:00' #original
 
   timer_ws_rinse:
     name: Rinse
-#    duration: '0:01:14'
+    #duration: '0:03:05'
     duration: '0:02:00' #original
 
   timer_ws_fill:
     name: Fill
-#    duration: '0:01:10'
+    #duration: '0:04:55'
     duration: '0:02:00' #original
 
   timer_ws_total:  #sum of all above values
     name: Total
-#    duration: '0:05:44'
+    #duration: '1:07:26'
     duration: '0:35:00' #orginal
 
 #-----------
@@ -101,6 +101,9 @@ utility_meter:
     source: sensor.clack_water_meter
     cycle: yearly 
 
+#-----------
+#AUTOMATIONS
+#-----------
 automation:
   ####################################################
   - id: set_water_softener_start_backwash

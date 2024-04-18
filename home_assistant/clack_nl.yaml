@@ -2,7 +2,8 @@
 #INPUT SELECT
 #------------
 # Opm: de stap 2e terugspoeling (backwash) is eruit gehaald, tussen brine en snelspoeling.
-# Deze stap weghalen bespaart water en is mogelijk niet persee nodig. Dit kan ingesteld worden in de Clack
+# Deze stap weghalen bespaart water en is mogelijk niet persee nodig. 
+# Dit kan ingesteld worden in de Clack. Zie de handleiding.
 input_select:
   clack_water_softener_status:
     name: Water softener status
@@ -62,7 +63,7 @@ timer:
   timer_ws_total:  #sum of all above values
     name: total
     #duration: '1:07:26'
-    duration: '0:12:00' #orginal
+    duration: '0:35:00' #orginal
 
 #-----------
 #SENSORS
