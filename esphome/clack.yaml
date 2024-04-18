@@ -12,6 +12,11 @@ substitutions:
   pulse_liters: "2.18"  #"2.15"
   pulse_per_liters: "17"
 
+external_components:
+  - source: github://fonske/clack-reader-v3@tof2
+    components: [ tof_vl53l1x ]
+    refresh: 0s
+    
 # In order to use other language fix clack-label filename below:
 # Currently supported languages are en (english), nl (dutch).
 # ESP32-wemos-s3 is a wemos lolin S3 mini
