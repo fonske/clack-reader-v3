@@ -43,10 +43,6 @@ wifi:
     ssid: "${name}"
     password: "configesp"
 
-# enable IMPROV wifi, connection hotspot via bluetooth. see https://www.improv-wifi.com/
-esp32_improv:
-  authorizer: None
-
 captive_portal:
 
 # Enable Web server.
