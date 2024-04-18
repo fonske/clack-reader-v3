@@ -24,8 +24,8 @@ substitutions:
   clack_wifi_signal_db_percent: WiFi Signal
   clack_uptime: Uptime
   clack_chlorinator: Chlorinator
-  clack_select_salt_measurement: Salt measurement
-  clack_salt_measurent_in_brine_delay: Delay measure salt brine
+  clack_salt_level_measurement: Salt measurement
+#  clack_salt_measurent_in_brine_delay: Delay measure salt brine
   hours: hours
   days: days
   clack_yes: "yes"
@@ -35,7 +35,7 @@ substitutions:
   clack_power: Power
   clack_current: Current
   clack_voltage: Voltage
-  clack_shunt_voltage: Sh voltage
+  clack_shunt_voltage: Shunt voltage
   clack_restart: ESP Restart
   clack_regen: clack regen
   clack_brine: During brine
