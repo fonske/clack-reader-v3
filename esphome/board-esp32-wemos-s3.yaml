@@ -30,13 +30,13 @@ esphome:
 # Enable/Disable logging
 logger:
   logs:
-    esp32.preferences: WARN
-    sensor: WARN
-    text_sensor: WARN
-    switch: WARN
-    button: WARN
-    number: WARN
-  # baud_rate: 0  # <--- super important! for ESP8266
+    esp32.preferences: DEBUG
+    sensor: DEBUG
+    text_sensor: DEBUG
+    switch: DEBUG
+    button: DEBUG
+    number: DEBUG
+      # WARN
 
 wifi:
   ap:
@@ -78,25 +78,25 @@ binary_sensor:
             state: !lambda |-
               return int(id(clack_capacity_liters).state - id(clack_watermeter).state);
 
-## watermeter pulse / flowmeter. 17 pulses = 1 ltr
-  - platform: gpio
-    pin:
-      number: 18 # wemos s3 mini
-      inverted: true
-      mode:
-        input: true
-        pullup: true
-    id: clack_watermeter_pulse_flowmtr
-    name: watermeter_pulse_flowmtr
+## experimental watermeter pulse / flowmeter. 17 pulses = 1 ltr
+#  - platform: gpio
+#    pin:
+#      number: 18 # wemos s3 mini
+#      inverted: true
+#      mode:
+#        input: true
+ #       pullup: true
+ #   id: clack_watermeter_pulse_flowmtr
+ #   name: watermeter_pulse_flowmtr
 #    icon: mdi:toggle-switch-variant
-    filters:
-      - delayed_on_off: 50ms
-    on_press:
-      then:
-        - sensor.template.publish:
-            id: clack_watermeter_pulses
-            state: !lambda |-
-              return id(totalWaterUsagePulse) += 1/float(${pulse_per_liters});
+#    filters:
+#      - delayed_on_off: 50ms
+#    on_press:
+#      then:
+#        - sensor.template.publish:
+#            id: clack_watermeter_pulses
+#            state: !lambda |-
+#              return id(totalWaterUsagePulse) += 1/float(${pulse_per_liters});
 
   ## regeneration pulse / relay 2
   - platform: gpio
@@ -173,9 +173,9 @@ button:
         - globals.set:
             id: totalWaterUsage
             value: '00'
-        - globals.set:
-            id: totalWaterUsagePulse
-            value: '00'
+#        - globals.set:
+#            id: totalWaterUsagePulse
+#            value: '00'
         - text_sensor.template.publish:
             id: clack_regeneration_last
             state: !lambda |-
@@ -188,10 +188,10 @@ button:
             id: clack_watermeter
             state: !lambda |-
               return id(totalWaterUsage);
-        - sensor.template.publish:
-            id: clack_watermeter_pulses
-            state: !lambda |-
-              return id(totalWaterUsage);
+#        - sensor.template.publish:
+#            id: clack_watermeter_pulses
+#            state: !lambda |-
+#              return id(totalWaterUsage);
         - sensor.template.publish:
             id: clack_m3_left
             state: !lambda |-

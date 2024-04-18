@@ -24,9 +24,8 @@ substitutions:
   clack_wifi_signal_db_percent: WiFi Signaal
   clack_uptime: Uptime
   clack_chlorinator: Chlorinator
-  clack_select_salt_measurement: Zout niveau meting
-  clack_measure_always: Altijd
-  clack_measure_during_brine: Alleen na bezouting
+  clack_salt_level_measurement: Zoutniveau meting
+#  clack_salt_measurent_in_brine_delay: Vertraging meting bezouten
   hours: uur
   days: dagen
   clack_yes: ja
@@ -39,6 +38,7 @@ substitutions:
   clack_shunt_voltage: Shunt spanning
   clack_restart: ESP Herstart
   clack_regen: clack regen
+  clack_brine: Tijdens bezouten
 
 text_sensor:
   # Expose last regeneration information as sensor

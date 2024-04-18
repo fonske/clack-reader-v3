@@ -38,13 +38,13 @@ api:
             id: clack_l_left
             state: !lambda |-
               return int(id(clack_capacity_liters).state - id(clack_watermeter).state);
-    - service: set_zoutspoeling_almost_finished
+    - service: set_brine_almost_finished
       variables:
         state: bool
       then:
         - lambda: |-
-            id(zoutspoeling_almost_finished) = state;
-            ESP_LOGD("custom", "Zoutspoeling almost finished flag set to: %s", state ? "true" : "false");
+            id(brine_almost_finished) = state;
+            ESP_LOGD("custom", "Brine almost finished flag set to: %s", state ? "true" : "false");
 
 globals:
   - id: totalWaterUsage
@@ -53,10 +53,10 @@ globals:
     initial_value: '00'
 
 ### experimental reading of flowmeter
-  - id: totalWaterUsagePulse
-    type: float
-    restore_value: yes
-    initial_value: '00'
+#  - id: totalWaterUsagePulse
+#    type: float
+#    restore_value: yes
+#    initial_value: '00'
 
 # Define a global variable for the chlorinator delay duration in minutes
   - id: duration
@@ -70,8 +70,8 @@ globals:
     restore_value: yes
     initial_value: '"Never"'
     
-# Define a global variable for zoutspoeling almost finished
-  - id: zoutspoeling_almost_finished
+# Define a global variable for brine almost finished
+  - id: brine_almost_finished
     type: bool
     initial_value: 'false'
 
@@ -144,13 +144,13 @@ script:
       - if:
           condition:
             lambda: |-
-              return strcmp(id(salt_level_measurement).state.c_str(), "Off") == 0;
+              return strcmp(id(clack_salt_level_measurement).state.c_str(), "${clack_off}") == 0;
           then:
             - logger.log: "Measure Off"
       - if:
           condition:
             lambda: |-
-              return strcmp(id(salt_level_measurement).state.c_str(), "On") == 0;
+              return strcmp(id(clack_salt_level_measurement).state.c_str(), "${clack_on}") == 0;
           then:
             - logger.log: "Measure On"
             - sensor.template.publish:
@@ -161,18 +161,15 @@ script:
                 id: distance_cm_last_value
                 value: !lambda |-
                   return id(distance_cm).state;
-#            - globals.set:
-#                id: distance_cm_last_value
-#                value: !lambda 'return x;'
       - if:
           condition:
             lambda: |-
-              return strcmp(id(salt_level_measurement).state.c_str(), "During brine") == 0;
+              return strcmp(id(clack_salt_level_measurement).state.c_str(), "${clack_brine}") == 0;
           then:
             - logger.log: "Measure On during brine"
             - if:
                 condition:
-                  lambda: return id(zoutspoeling_almost_finished);
+                  lambda: return id(brine_almost_finished);
                 then:
                   - sensor.template.publish:
                       id: clack_distance
@@ -212,55 +209,19 @@ sensor:
     address: 0x40
     shunt_resistance: 0.1 ohm
     current:
-      name: Current
+      name: ${clack_current}
     power:
-      name: Power
+      name: ${clack_power}
       filters:
         - delta: 0.05
     bus_voltage:
-      name: Voltage
+      name: ${clack_voltage}
     shunt_voltage:
-      name: Shunt Voltage
+      name: ${clack_shunt_voltage}
     max_voltage: 32.0V
     max_current: 3.2A
-    update_interval: 5s
+    update_interval: 10s
 
-  ##
-  # VL53L1X TOF
-#  - platform: vl53l1x
-#    id: distance_cm
-#    address: 0x29
-#    update_interval: ${salt_level_update_interval}
-#    long_range: false
-#    internal: false
-#    filters:
-#      - filter_out: nan
-#      - lambda: return x*100;
-      ### comment with # if you want a direct reading
-      #- median:
-      #    window_size: 15
-      #    send_every: 7
-      #    send_first_at: 1
-      #- delta: 0.5
-      ###
-#      - clamp:
-#          min_value: 0.0
-#          max_value: 160.0
-#    on_value:
-#      then:
-#        - if:
-#            condition:
-#              lambda: return id(zoutspoeling_almost_finished);
-#            then:
-#              - sensor.template.publish:
-#                  id: clack_distance
-#                  state: !lambda |- 
-#                    return id(distance_cm).state;
-#              - globals.set:
-#                  id: distance_cm_last_value
-#                  value: !lambda 'return x;'
-
-##
 # VL53L1X TOF               
   - platform: custom
     lambda: |-
@@ -381,17 +342,17 @@ sensor:
       return id(totalWaterUsage);
 
   #  experimental Watermeter pulse
-  - platform: template
-    id: clack_watermeter_pulses
-    name: clack_watermeter_total_pulse
-    icon: mdi:water
-    update_interval: ${watermeter_update_interval}
-    unit_of_measurement: L
-    device_class: water
-    state_class: total_increasing
-    accuracy_decimals: 1
-    lambda: |-
-      return id(totalWaterUsagePulse);
+#  - platform: template
+#    id: clack_watermeter_pulses
+#    name: clack_watermeter_total_pulse
+#    icon: mdi:water
+#    update_interval: ${watermeter_update_interval}
+#    unit_of_measurement: L
+#    device_class: water
+#    state_class: total_increasing
+#    accuracy_decimals: 1
+#    lambda: |-
+#      return id(totalWaterUsagePulse);
 
   - platform: template
     id: clack_m3_left
@@ -437,20 +398,18 @@ select:
     entity_category: config
     update_interval: never
 
-  - id: salt_level_measurement
-    name: "Salt level measurement"
+  - id: clack_salt_level_measurement
+    name: ${clack_salt_level_measurement}
     platform: template    
     options:
-      - "Off"
-      - "On"
-      - "During brine"
-    initial_option: "On"
+      - ${clack_off}
+      - ${clack_on}
+      - ${clack_brine}
+    initial_option: ${clack_on}
     optimistic: true
     restore_value: true
     entity_category: config
     update_interval: never
-#    on_value:
-#      script.execute: set_status_led
 
 ##
 # Text sensors with general information.

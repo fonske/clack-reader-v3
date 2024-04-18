@@ -25,8 +25,6 @@ substitutions:
   clack_uptime: Uptime
   clack_chlorinator: Chlorinator
   clack_select_salt_measurement: Salt measurement
-  clack_measure_always: Always
-  clack_measure_during_brine: Only during brine
   clack_salt_measurent_in_brine_delay: Delay measure salt brine
   hours: hours
   days: days
@@ -37,8 +35,10 @@ substitutions:
   clack_power: Power
   clack_current: Current
   clack_voltage: Voltage
-  clack_shunt_voltage: Voltage
+  clack_shunt_voltage: Sh voltage
   clack_restart: ESP Restart
+  clack_regen: clack regen
+  clack_brine: During brine
 
 text_sensor:
   # Expose last regeneration information as sensor / already in English
