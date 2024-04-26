@@ -15,7 +15,7 @@ class MyCustomSensor : public PollingComponent, public Sensor {
     Wire.begin();
     Wire.setClock(400000); // use 400 kHz I2C
 
-    tof_sensor.setTimeout(500);
+    tof_sensor.setTimeout(1000);
     tof_sensor.setAddress(0x29);
     if (!tof_sensor.init()) {
       ESP_LOGE("VL53L1X custom sensor", "Failed to detect and initialize sensor!");
