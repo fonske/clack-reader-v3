@@ -1,6 +1,6 @@
 # clack-reader-v3
  Esphome component for Clack WS1 softener with M5stack TOF sensor saltlevel detection
- This branch vv, uses the older VL53L0 from M5stack, with the salt level reading during brine.
+ This branch tof1, uses the older VL53L0 from M5stack, with the salt level reading measurement during brine.
  
  Relay for control of the chlorinator module from Aqmos.nl / .de
  and Power measurement with ina219
