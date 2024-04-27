@@ -237,9 +237,9 @@ sensor:
       - clamp:
           min_value: 0.0
           max_value: 160.0
-      on_value:
-        then:
-          - script.execute: set_preference_distance_readout
+    on_value:
+      then:
+        - script.execute: set_preference_distance_readout
   ##
   # ultrasonic distance sensor.
   - platform: template
