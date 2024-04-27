@@ -27,11 +27,12 @@ packages:
       esphome/board-esp32-wemos-s3.yaml,
    ]
 
-## for developing/testing, uncomment local includes and comment out above remote_package packages part.
+## for local developing/testing, uncomment local includes and comment out above remote_package packages part.
 #packages:
-#  substitutions: !include .clack-labels-en.yaml
-#  substitutions: !include .clack-labels-nl.yaml
-#  device_base1:  !include board-esp32-wemos-s3.yaml
+#  substitutions: !include clack_tof1/.clack-labels-en.yaml
+#  substitutions: !include clack_tof1/.clack-labels-nl.yaml
+#  device_base1:  !include clack_tof1/board-esp32-wemos-s3.yaml
+#  device_base2:  !include clack_tof1/.clack-base.yaml
 
 time:
   - platform: sntp
