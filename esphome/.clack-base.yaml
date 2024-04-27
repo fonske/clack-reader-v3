@@ -226,6 +226,8 @@ sensor:
     update_interval: ${salt_level_update_interval}
     long_range: false
     internal: false
+    accuracy_decimals: 1
+    unit_of_measurement: "cm"
     filters:
       - filter_out: nan
       - lambda: return x*100;
