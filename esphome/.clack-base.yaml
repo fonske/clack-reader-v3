@@ -6,11 +6,6 @@ esphome:
     priority: 200
     then:
       - script.execute: on_boot
-  includes:
-    - tof_vl53l1x.h  #ToF4M M5stack
-  libraries:
-    - "Wire"
-    - "pololu/VL53L1X"
 
 # OTA:
 ota:
@@ -222,27 +217,29 @@ sensor:
     max_current: 3.2A
     update_interval: 10s
 
-# VL53L1X TOF               
-  - platform: custom
-    lambda: |-
-      auto my_sensor = new MyCustomSensor();
-      App.register_component(my_sensor);
-      return {my_sensor};
-
-    sensors:
-      name: ${clack_distance_tof}
-      accuracy_decimals: 1
-      unit_of_measurement: "cm"
-      id: distance_cm
-      icon: mdi:ruler
-      internal: false
-      filters:
-        - filter_out: nan
-        - lambda: return x/10;
+# VL53L0X TOF               
+  - platform: vl53l0x
+    id: distance_cm
+    address: 0x29
+    update_interval: ${salt_level_update_interval}
+    long_range: false
+    internal: false
+    filters:
+      - filter_out: nan
+      - lambda: return x*100;
+      ### comment with # if you want a direct reading
+      #- median:
+      #    window_size: 15
+      #    send_every: 7
+      #    send_first_at: 1
+      #- delta: 0.5
+      ###
+      - clamp:
+          min_value: 0.0
+          max_value: 160.0
       on_value:
         then:
           - script.execute: set_preference_distance_readout
-
   ##
   # ultrasonic distance sensor.
   - platform: template

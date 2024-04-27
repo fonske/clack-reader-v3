@@ -18,7 +18,7 @@ substitutions:
 packages:
   remote_package:
     url: https://github.com/fonske/clack-reader-v3
-    ref: tof2
+    ref: vv
     refresh: 0s
     files: [ 
       esphome/.clack-base.yaml, 
