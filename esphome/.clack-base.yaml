@@ -219,7 +219,9 @@ sensor:
 
 # VL53L0X TOF               
   - platform: vl53l0x
+    name: ${clack_distance_tof}
     id: distance_cm
+    icon: mdi:ruler
     address: 0x29
     update_interval: ${salt_level_update_interval}
     long_range: false
