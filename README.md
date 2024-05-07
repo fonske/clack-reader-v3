@@ -5,8 +5,10 @@
  and Power measurement with ina219
 
 ## Versions / Branches
-main: Tof1 sensor (VL53L0X) code without measurement during brine option
-tof1: Tof1 sensor (VL53L0X) code with measurement during brine option
+main: Tof1 sensor (VL53L0X) code without measurement during brine option.
+
+tof1: Tof1 sensor (VL53L0X) code with measurement during brine option.
+
 tof2: Tof2 sensor (VL53L1X) code with measurement during brine option
 
 ## Installation
