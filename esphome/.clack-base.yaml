@@ -76,7 +76,7 @@ globals:
     initial_value: 'false'
 
 # Define a global variable to store last value of the distance
-  - id: distance_cm_last_value
+  - id: distance_in_last_value
     type: float
     restore_value: true
     initial_value: '0.0'
@@ -125,8 +125,8 @@ script:
       - light.turn_off:
           id: led
       - lambda: |-
-          if (id(distance_cm_last_value) != 0.0) {
-            id(clack_distance).publish_state(id(distance_cm_last_value));
+          if (id(distance_in_last_value) != 0.0) {
+            id(clack_distance).publish_state(id(distance_in_last_value));
           }
 
 
@@ -156,11 +156,11 @@ script:
             - sensor.template.publish:
                 id: clack_distance
                 state: !lambda |-
-                  return id(distance_cm).state;
+                  return id(distance_in).state;
             - globals.set:
-                id: distance_cm_last_value
+                id: distance_in_last_value
                 value: !lambda |-
-                  return id(distance_cm).state;
+                  return id(distance_in).state;
       - if:
           condition:
             lambda: |-
@@ -174,11 +174,11 @@ script:
                   - sensor.template.publish:
                       id: clack_distance
                       state: !lambda |-
-                        return id(distance_cm).state;
+                        return id(distance_in).state;
                   - globals.set:
-                      id: distance_cm_last_value
+                      id: distance_in_last_value
                       value: !lambda |-
-                        return id(distance_cm).state;
+                        return id(distance_in).state;
 
 light:
 #G47=RGB WS2812C-2020
@@ -233,11 +233,11 @@ sensor:
       name: ${clack_distance_tof}
       accuracy_decimals: 1
       unit_of_measurement: "in"
-      id: distance_cm
+      id: distance_in
       icon: mdi:ruler
       internal: false
       filters:
-//        - filter_out: nan
+##        - filter_out: nan
         - lambda: |-
             if (isnan(x)) {
               return 0;
@@ -245,7 +245,7 @@ sensor:
               return x;
             }
         - lambda: return x/10;
-        - multiply: 39.37  // cm to inches
+        - multiply: 0.3937  ## cm to inches
       on_value:
         then:
           - script.execute: set_preference_distance_readout
@@ -319,7 +319,7 @@ sensor:
   - platform: template
     id: clack_height
     name: ${clack_height}
-    unit_of_measurement: cm
+    unit_of_measurement: "in"
     accuracy_decimals: 1
     icon: "mdi:hydraulic-oil-level"
     update_interval: ${clack_height_update_interval}
@@ -454,13 +454,13 @@ number:
     icon: mdi:toggle-switch-variant
     optimistic: true
     mode: slider
-    step: 0.5
+    step: 0.25
     entity_category: config
     min_value: 0
-    max_value: 10
+    max_value: 5
     initial_value: 0
     restore_value: yes
-    unit_of_measurement: cm
+    unit_of_measurement: "in"
     on_value:
       then:
         - sensor.template.publish:
@@ -483,25 +483,25 @@ number:
     icon: mdi:toggle-switch-variant-off
     optimistic: true
     mode: slider
-    step: 0.5
+    step: 0.25
     entity_category: config
     min_value: 0
-    max_value: 100
-    initial_value: 30
+    max_value: 30
+    initial_value: 15
     restore_value: yes
-    unit_of_measurement: cm
+    unit_of_measurement: "in"
     on_value:
       then:
         - sensor.template.publish:
             id: clack_procent
             state: !lambda |-
-              const float max_distance = id(clack_saltlevel_height_max).state; // heigt in cm to lowest level
-              const float min_distance = id(clack_saltlevel_height_min).state; // height in cm to highest level
+              const float max_distance = id(clack_saltlevel_height_max).state; // heigt in in to lowest level
+              const float min_distance = id(clack_saltlevel_height_min).state; // height in in to highest level
               return int((1-((id(clack_distance).state - min_distance)/max_distance))*100);
         - sensor.template.publish:
             id: clack_height
             state: !lambda |-
-              const float max_distance = id(clack_saltlevel_height_max).state;  // height in cm to lowest level
+              const float max_distance = id(clack_saltlevel_height_max).state;  // height in in to lowest level
               return max_distance-id(clack_distance).state;
   ##
   # Set alarm level
@@ -515,9 +515,9 @@ number:
     entity_category: config
     min_value: 0
     max_value: 10
-    initial_value: 1.5
+    initial_value: 1.0
     restore_value: yes
-    unit_of_measurement: cm
+    unit_of_measurement: "in"
     update_interval: 600s
     on_value:
       then:
