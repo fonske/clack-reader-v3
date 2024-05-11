@@ -8,7 +8,7 @@ substitutions:
   watermeter_update_interval: 600s # 10 minutes
   tank_percentage_update_interval: 600s
   clack_height_update_interval: 600s
-  pulse_liters: "2.15"
+  pulse_liters: "2.18"
 
 # In order to use other language fix clack-label filename below:
 # Currently supported languages are en (english), nl (dutch).
