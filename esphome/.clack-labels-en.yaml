@@ -7,14 +7,14 @@ substitutions:
   clack_height: Salt level height
   clack_watermeter_total: Water meter
   clack_m3_left: Water softener m3 left
-  clack_l_left: Water softener ltr left
+  clack_g_left: Water softener gallon left
   clack_version: Version
   clack_regeneration_last: Regenerated on
   clack_fill_salt: Fill salt
   clack_saltlevel_height_min: Min salt distance
   clack_saltlevel_height_max: Max salt distance
   clack_saltlevel_height_fill: Fill salt distance
-  clack_capacity_liters: Capacity in liters
+  clack_capacity_gallons: Capacity in gallons
   clack_capacity_days: Capacity in days
   clack_chlorinator_delay: Chlorinator active time
   clack_watermeter_pulse: Watermeter pulse
