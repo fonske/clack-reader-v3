@@ -348,19 +348,6 @@ sensor:
     lambda: |-
       return id(totalWaterUsage);
 
-  #  experimental Watermeter pulse
-#  - platform: template
-#    id: clack_watermeter_pulses
-#    name: clack_watermeter_total_pulse
-#    icon: mdi:water
-#    update_interval: ${watermeter_update_interval}
-#    unit_of_measurement: L
-#    device_class: water
-#    state_class: total_increasing
-#    accuracy_decimals: 1
-#    lambda: |-
-#      return id(totalWaterUsagePulse);
-
   - platform: template
     id: clack_m3_left
     name: ${clack_m3_left}
