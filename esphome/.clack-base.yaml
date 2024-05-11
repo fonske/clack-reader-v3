@@ -432,7 +432,7 @@ number:
     step: 50
     entity_category: config
     min_value: 0
-    max_value: 7200
+    max_value: 12000
     initial_value: 3200
     restore_value: yes
     unit_of_measurement: L
@@ -476,7 +476,7 @@ number:
     step: 1
     entity_category: config
     min_value: 0
-    max_value: 25
+    max_value: 35
     initial_value: 10
     restore_value: yes
     unit_of_measurement: "min"
