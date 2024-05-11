@@ -1,7 +1,7 @@
 substitutions:
   # General substitutions:
   name: clack
-  friendly_name: clack
+  friendly_name: clack_usa
   device_description: "Esphome component for Clack WS1 softener with TOF sensor saltlevel detection"
   timezone: "Europe/Amsterdam"
   # Interval substitutions:
@@ -9,16 +9,15 @@ substitutions:
   watermeter_update_interval: 600s # 10 minutes
   tank_percentage_update_interval: 600s
   clack_height_update_interval: 600s
-  pulse_liters: "2.18"  #"2.15"
-  pulse_per_liters: "17"
+  pulse_gallons: "1.00"  #replace with actual pulse per gallon (real number with deviation)
 
 # In order to use other language fix clack-label filename below:
-# Currently supported languages are en (english), nl (dutch).
+# Currently supported languages are en (english)
 # ESP32-wemos-s3 is a wemos lolin S3 mini
 packages:
   remote_package:
     url: https://github.com/fonske/clack-reader-v3
-    ref: tof2
+    ref: tof2usa  #inches and gallons
     refresh: 0s
     files: [ 
       esphome/.clack-base.yaml, 
@@ -30,9 +29,10 @@ packages:
 
 ## for developing/testing, uncomment local includes and comment out above remote_package packages part.
 #packages:
-#  substitutions: !include .clack-labels-en.yaml
-#  substitutions: !include .clack-labels-nl.yaml
-#  device_base1:  !include board-esp32-wemos-s3.yaml
+#  substitutions: !include clack_tof/.clack-labels-en.yaml
+#  substitutions: !include clack_tof/.clack-labels-nl.yaml
+#  device_base1:  !include clack_tof/board-esp32-wemos-s3.yaml
+#  device_base2:  !include clack_tof/.clack-base.yaml
 
 time:
   - platform: sntp
