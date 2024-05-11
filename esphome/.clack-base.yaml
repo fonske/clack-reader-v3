@@ -33,11 +33,11 @@ api:
         - sensor.template.publish:
             id: clack_m3_left
             state: !lambda |-
-              return float(id(clack_capacity_liters).state - id(clack_watermeter).state) * 0.001;
+              return float(id(clack_capacity_gallons).state - id(clack_watermeter).state) * 0.001;
         - sensor.template.publish:
-            id: clack_l_left
+            id: clack_g_left
             state: !lambda |-
-              return int(id(clack_capacity_liters).state - id(clack_watermeter).state);
+              return int(id(clack_capacity_gallons).state - id(clack_watermeter).state);
     - service: set_brine_almost_finished
       variables:
         state: bool
@@ -88,11 +88,11 @@ script:
       - sensor.template.publish:
           id: clack_m3_left
           state: !lambda |-
-            return float(id(clack_capacity_liters).state - id(clack_watermeter).state) * 0.001;
+            return float(id(clack_capacity_gallons).state - id(clack_watermeter).state) * 0.001;
       - sensor.template.publish:
-          id: clack_l_left
+          id: clack_g_left
           state: !lambda |-
-            return int(id(clack_capacity_liters).state - id(clack_watermeter).state);
+            return int(id(clack_capacity_gallons).state - id(clack_watermeter).state);
       - text_sensor.template.publish:
             id: clack_regeneration_last
             state: !lambda |-
@@ -341,7 +341,7 @@ sensor:
     name: ${clack_watermeter_total}
     icon: mdi:water
     update_interval: ${watermeter_update_interval}
-    unit_of_measurement: L
+    unit_of_measurement: gal
     device_class: water
     state_class: total_increasing
     accuracy_decimals: 1
@@ -358,9 +358,9 @@ sensor:
     update_interval: ${watermeter_update_interval}
 
   - platform: template
-    id: clack_l_left
-    name: ${clack_l_left}
-    unit_of_measurement: L
+    id: clack_g_left
+    name: ${clack_g_left}
+    unit_of_measurement: gal
     device_class: water
     state_class: total_increasing
     accuracy_decimals: 0
@@ -519,8 +519,8 @@ number:
   ##
   # Set capacity liters
   - platform: template
-    id: clack_capacity_liters
-    name: ${clack_capacity_liters}
+    id: clack_capacity_gallons
+    name: ${clack_capacity_gallons}
     icon: mdi:water-opacity
     optimistic: true
     mode: slider
@@ -530,7 +530,7 @@ number:
     max_value: 7200
     initial_value: 3200
     restore_value: yes
-    unit_of_measurement: L
+    unit_of_measurement: gal
     on_value:
       then:
         - sensor.template.publish:
@@ -540,11 +540,11 @@ number:
         - sensor.template.publish:
             id: clack_m3_left
             state: !lambda |-
-              return float(id(clack_capacity_liters).state - id(clack_watermeter).state) * 0.001;
+              return float(id(clack_capacity_gallons).state - id(clack_watermeter).state) * 0.001;
         - sensor.template.publish:
-            id: clack_l_left
+            id: clack_g_left
             state: !lambda |-
-              return int(id(clack_capacity_liters).state - id(clack_watermeter).state);
+              return int(id(clack_capacity_gallons).state - id(clack_watermeter).state);
   ##
   # Set capacity days
   - platform: template
