@@ -74,7 +74,7 @@ binary_sensor:
             state: !lambda |-
               return float(id(clack_capacity_gallons).state - id(clack_watermeter).state) * 0.001;
         - sensor.template.publish:
-            id: clack_l_left
+            id: clack_g_left
             state: !lambda |-
               return int(id(clack_capacity_gallons).state - id(clack_watermeter).state);
 
@@ -113,7 +113,7 @@ binary_sensor:
             state: !lambda |-
               return float(id(clack_capacity_gallons).state - id(clack_watermeter).state) * 0.001;
         - sensor.template.publish:
-            id: clack_l_left
+            id: clack_g_left
             state: !lambda |-
               return int(id(clack_capacity_gallons).state - id(clack_watermeter).state);
         - if:
@@ -138,7 +138,7 @@ button:
             state: !lambda |-
               return float(id(clack_capacity_gallons).state - id(clack_watermeter).state) * 0.001;
         - sensor.template.publish:
-            id: clack_l_left
+            id: clack_g_left
             state: !lambda |-
               return int(id(clack_capacity_gallons).state - id(clack_watermeter).state);
         - lambda: |-
@@ -170,7 +170,7 @@ button:
             state: !lambda |-
               return float(id(clack_capacity_gallons).state - id(clack_watermeter).state) * 0.001;
         - sensor.template.publish:
-            id: clack_l_left
+            id: clack_g_left
             state: !lambda |-
               return int(id(clack_capacity_gallons).state - id(clack_watermeter).state);
         - lambda: |-
