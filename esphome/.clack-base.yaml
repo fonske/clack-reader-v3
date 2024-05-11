@@ -232,13 +232,20 @@ sensor:
     sensors:
       name: ${clack_distance_tof}
       accuracy_decimals: 1
-      unit_of_measurement: "cm"
+      unit_of_measurement: "in"
       id: distance_cm
       icon: mdi:ruler
       internal: false
       filters:
-        - filter_out: nan
+//        - filter_out: nan
+        - lambda: |-
+            if (isnan(x)) {
+              return 0;
+            } else {
+              return x;
+            }
         - lambda: return x/10;
+        - multiply: 39.37  // cm to inches
       on_value:
         then:
           - script.execute: set_preference_distance_readout
@@ -248,7 +255,7 @@ sensor:
   - platform: template
     name: ${clack_distance}
     id:  clack_distance
-    unit_of_measurement: cm
+    unit_of_measurement: in
     accuracy_decimals: 1
     icon: "mdi:arrow-expand-vertical"
     device_class: distance
@@ -258,13 +265,13 @@ sensor:
         - sensor.template.publish:
             id: clack_procent
             state: !lambda |-
-              const float max_distance = id(clack_saltlevel_height_max).state; // heigt in cm to lowest level
-              const float min_distance = id(clack_saltlevel_height_min).state; // height in cm to highest level
+              const float max_distance = id(clack_saltlevel_height_max).state; // heigt in in to lowest level
+              const float min_distance = id(clack_saltlevel_height_min).state; // height in in to highest level
               return int((1-((id(clack_distance).state - min_distance)/max_distance))*100);
         - sensor.template.publish:
             id: clack_height
             state: !lambda |-
-              const float max_distance = id(clack_saltlevel_height_max).state;  // height in cm to lowest level
+              const float max_distance = id(clack_saltlevel_height_max).state;  // height in in to lowest level
               return max_distance-id(clack_distance).state;
         - text_sensor.template.publish:
             id: clack_fill_salt
