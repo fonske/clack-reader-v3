@@ -48,7 +48,7 @@ timer:
   timer_ws_brine:
     name: Brine
     #duration: '0:57:16'
-    duration: '0:30:00' #original
+    duration: '0:10:00' #original
 
   timer_ws_rinse:
     name: Rinse
@@ -63,7 +63,7 @@ timer:
   timer_ws_total:  #sum of all above values
     name: Total
     #duration: '1:07:26'
-    duration: '0:35:00' #orginal
+    duration: '0:15:00' #orginal
 
 #-----------
 #SENSORS
@@ -216,7 +216,7 @@ automation:
       data:
         entity_id: input_select.clack_water_softener_status
         option: Idle
-    - service: esphome.clack_meterstand_clack
+    - service: esphome.clack_water_meter_value
       data:
         meter_value: 0
     - service: input_number.set_value
@@ -240,7 +240,7 @@ automation:
       after: 07:30:00
       before: '22:00:00'
     action:
-    - service: notify.mobile_app_iphone_van_a_c_a
+    - service: notify.mobile_app_iphone_van_a_c_a  #change to your own
       data:
         title: Be aware!
         message: Salt level watersoftener is low! Fill salt today!
