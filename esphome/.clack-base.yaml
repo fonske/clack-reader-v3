@@ -19,7 +19,7 @@ ota:
 api:
   reboot_timeout: 0s
   services:
-    - service: meterstand_clack
+    - service: water_meter_value
       variables:
         meter_value: float
       then:
@@ -129,6 +129,26 @@ script:
             id(clack_distance).publish_state(id(distance_cm_last_value));
           }
 
+  - id: recalculate
+    then:
+      - sensor.template.publish:
+          id: clack_height
+          state: !lambda |-
+            return id(clack_saltlevel_height_max).state-id(clack_distance).state;
+      - sensor.template.publish:
+          id: clack_procent
+          state: !lambda |-
+            const float max_distance = id(clack_saltlevel_height_max).state; // heigt in cm to lowest level
+            const float min_distance = id(clack_saltlevel_height_min).state; // height in cm to highest level
+            return int((1/((max_distance - min_distance)/id(clack_height).state))*100);
+      - text_sensor.template.publish:
+          id: clack_fill_salt
+          state: !lambda |-
+            if (id(clack_height).state < id(clack_saltlevel_height_fill).state) {
+              return {"${clack_yes}"};
+            } else {
+              return {"${clack_no}"};
+             }
 
 ###  Define a script that turns on the chlorinator relay, waits for the duration, and turns it off
   - id: chlorinator_start
@@ -208,16 +228,18 @@ sensor:
   - platform: ina219
     address: 0x40
     shunt_resistance: 0.1 ohm
-    current:
-      name: ${clack_current}
+#    current:
+#      name: ${clack_current}
     power:
       name: ${clack_power}
       filters:
         - delta: 0.05
     bus_voltage:
       name: ${clack_voltage}
-    shunt_voltage:
-      name: ${clack_shunt_voltage}
+      filters:
+        - delta: 0.03
+#    shunt_voltage:
+#      name: ${clack_shunt_voltage}
     max_voltage: 32.0V
     max_current: 3.2A
     update_interval: 10s
@@ -237,8 +259,18 @@ sensor:
       icon: mdi:ruler
       internal: false
       filters:
-        - filter_out: nan
+        - lambda: |-
+            if (isnan(x)) {
+              return 0;
+            } else {
+              return x;
+            }
         - lambda: return x/10;
+        - clamp:
+            min_value: 0.0
+            max_value: 400.0
+#        - median:
+        - delta: 0.2
       on_value:
         then:
           - script.execute: set_preference_distance_readout
@@ -255,25 +287,7 @@ sensor:
     state_class: measurement
     on_value:
       then:
-        - sensor.template.publish:
-            id: clack_procent
-            state: !lambda |-
-              const float max_distance = id(clack_saltlevel_height_max).state; // heigt in cm to lowest level
-              const float min_distance = id(clack_saltlevel_height_min).state; // height in cm to highest level
-              return int((1-((id(clack_distance).state - min_distance)/max_distance))*100);
-        - sensor.template.publish:
-            id: clack_height
-            state: !lambda |-
-              const float max_distance = id(clack_saltlevel_height_max).state;  // height in cm to lowest level
-              return max_distance-id(clack_distance).state;
-        - text_sensor.template.publish:
-            id: clack_fill_salt
-            state: !lambda |-
-              if (id(clack_height).state < id(clack_saltlevel_height_fill).state) {
-                return {"${clack_yes}"};
-              } else {
-                return {"${clack_no}"};
-              }
+        - script.execute: recalculate
 
   ##
   # ultrasonic distance sensor calculate tank_percentage
@@ -456,17 +470,7 @@ number:
     unit_of_measurement: cm
     on_value:
       then:
-        - sensor.template.publish:
-            id: clack_procent
-            state: !lambda |-
-              const float max_distance = id(clack_saltlevel_height_max).state; // heigt in cm to lowest level
-              const float min_distance = id(clack_saltlevel_height_min).state; // height in cm to highest level
-              return int((1-((id(clack_distance).state - min_distance)/max_distance))*100);
-        - sensor.template.publish:
-            id: clack_height
-            state: !lambda |-
-              const float max_distance = id(clack_saltlevel_height_max).state;  // height in cm to lowest level
-              return max_distance-id(clack_distance).state;
+        - script.execute: recalculate
 
   ##
   # Set maximum distance (from bottom sensor / underneath plastic cap) to water level (to measure in pipe?)
@@ -485,17 +489,7 @@ number:
     unit_of_measurement: cm
     on_value:
       then:
-        - sensor.template.publish:
-            id: clack_procent
-            state: !lambda |-
-              const float max_distance = id(clack_saltlevel_height_max).state; // heigt in cm to lowest level
-              const float min_distance = id(clack_saltlevel_height_min).state; // height in cm to highest level
-              return int((1-((id(clack_distance).state - min_distance)/max_distance))*100);
-        - sensor.template.publish:
-            id: clack_height
-            state: !lambda |-
-              const float max_distance = id(clack_saltlevel_height_max).state;  // height in cm to lowest level
-              return max_distance-id(clack_distance).state;
+        - script.execute: recalculate
   ##
   # Set alarm level
   - platform: template
