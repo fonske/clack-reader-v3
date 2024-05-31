@@ -9,8 +9,8 @@ substitutions:
   watermeter_update_interval: 600s # 10 minutes
   tank_percentage_update_interval: 600s
   clack_height_update_interval: 600s
-  pulse_liters: "2.18"  #"2.15"
-  pulse_per_liters: "17"
+  pulse_liters: "2.18"
+#  pulse_per_liters: "17"
 
 # In order to use other language fix clack-label filename below:
 # Currently supported languages are en (english), nl (dutch).
@@ -23,8 +23,8 @@ packages:
     files: [ 
       esphome/.clack-base.yaml, 
       esphome/.clack-optional.yaml,
-      esphome/.clack-labels-nl.yaml,
-#      esphome/.clack-labels-en.yaml,
+#      esphome/.clack-labels-nl.yaml,
+      esphome/.clack-labels-en.yaml,
       esphome/board-esp32-wemos-s3.yaml,
    ]
 
@@ -33,7 +33,13 @@ packages:
 #  substitutions: !include .clack-labels-en.yaml
 #  substitutions: !include .clack-labels-nl.yaml
 #  device_base1:  !include board-esp32-wemos-s3.yaml
+#  device_base2:  !include .clack-base.yaml
 
+external_components:
+  - source: github://pr#4444
+    components: [async_tcp, web_server_base]
+    refresh: always
+    
 time:
   - platform: sntp
     id: clack_sntp_time
