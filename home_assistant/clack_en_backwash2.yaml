@@ -15,7 +15,27 @@ input_select:
       - Fill
       - Idle
     initial: Idle
-    
+
+input_boolean:
+  brine_almost_finished:
+    name: Brine Almost Finished
+    initial: off
+    icon: mdi:timer-sand
+  clack_manual_regen:
+    name: Clack Manual Regen
+    initial: off
+    icon: mdi:water-pump-off
+
+input_number:
+  brine_alert_time:
+    name: Brine Alert Time Before Finish
+    initial: 5
+    min: 1
+    max: 10
+    step: 1
+    unit_of_measurement: 'minutes'
+    icon: mdi:timer-outline
+        
 #-----------
 #TIMERS
 #-----------
