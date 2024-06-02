@@ -241,7 +241,7 @@ automation:
       data:
         entity_id: input_select.clack_water_softener_status
         option: Idle
-    - service: esphome.clack_meterstand_clack
+    - service: esphome.clack_water_meter_value
       data:
         meter_value: 0
     - service: input_number.set_value
