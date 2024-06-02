@@ -5,6 +5,12 @@
  Relay for control of the chlorinator module from Aqmos.nl / .de
  and Power measurement with ina219
 
+## Versions / Branches
+main: Tof1 sensor (VL53L0X) code without measurement during brine option.
+
+tof1: Tof1 sensor (VL53L0X) code with measurement during brine option.
+
+tof2: Tof2 sensor (VL53L1X) code with measurement during brine option
 
 ## Installation
 A dutch installation manual is written by [ViezeVis](https://github.com/ViezeVisNL). Visit his [webpage](https://bashoogers.nl/2024/01/11/clack-reader-v3-instructie-installatie-home-assistant/) for the document.
