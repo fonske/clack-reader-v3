@@ -155,8 +155,6 @@ views:
             name: Power
           - entity: sensor.clack_voltage
             name: Voltage
-          - entity: sensor.clack_current
-            name: Current
           - entity: switch.clack_chlorinator
             name: Chlorinator / Dp-Sw relay
           - entity: input_boolean.brine_almost_finished
