@@ -464,7 +464,7 @@ number:
     step: 0.5
     entity_category: config
     min_value: 0
-    max_value: 10
+    max_value: 30
     initial_value: 0
     restore_value: yes
     unit_of_measurement: cm
