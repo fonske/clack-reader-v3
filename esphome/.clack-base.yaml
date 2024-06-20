@@ -14,6 +14,7 @@ esphome:
 
 # OTA:
 ota:
+  platform: esphome
 
 # Enable Home Assistant API
 api:
