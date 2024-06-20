@@ -5,10 +5,7 @@ esphome:
     priority: 200
     then:
       - script.execute: on_boot
-
-# OTA:
-ota:
-
+ 
 # Enable Home Assistant API
 api:
   reboot_timeout: 0s
