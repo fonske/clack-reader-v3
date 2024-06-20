@@ -14,7 +14,8 @@ esphome:
 
 # OTA:
 ota:
-
+  platform: esphome
+  
 # Enable Home Assistant API
 api:
   reboot_timeout: 0s
