@@ -50,7 +50,3 @@ wifi:
     ssid: "${name}"
     password: "configesp"
     ap_timeout: 15s
-
-# OTA:
-ota:
-  platform: esphome
